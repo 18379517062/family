@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.family.mapper.accountMapper" >
+<!--  <resultMap id="BaseResultMap" type="com.family.entity.account" >-->
+<!--    <id column="id" property="id" jdbcType="INTEGER" />-->
+<!--    <result column="userId" property="userId" jdbcType="INTEGER" />-->
+<!--    <result column="accountName" property="accountName" jdbcType="VARCHAR" />-->
+<!--    <result column="accountMoney" property="accountMoney" jdbcType="DOUBLE" />-->
+<!--  </resultMap>-->
+  <sql id="Base_Column_List" >
+    id, userId, accountName, accountMoney
+  </sql>
+
+  <!--添加新类别-->
+  <insert id="addAccount" keyProperty="id" parameterType="com.family.entity.account">
+        INSERT INTO account (userId,accountName,accountMoney) VALUES (#{userId},#{accountName},#{accountMoney})
+  </insert>
+
+  <!--查找类别是否存在-->
+  <select id="selectIsAccount"  resultType="java.lang.String">
+        SELECT accountName from account  where  userId = #{userId} and accountName = #{accountName}
+  </select>
+
+    <!--查找某用户的所有账户-->
+    <select id="findAccountByUserId" resultType="com.family.entity.account">
+        select
+        <include refid="Base_Column_List" />
+        from account
+        where userId = #{userId}
+    </select>
+    <!--    通过名称模糊查找-->
+    <select id="findAccountByName" resultType="com.family.entity.account">
+        select
+        <include refid="Base_Column_List" />
+        from account
+        where accountName like '%${accountName}%'
+    </select>
+
+    <!--  删除类别-->
+    <delete id="delete" parameterType="java.lang.Integer">
+          DELETE FROM account WHERE id = #{id}
+    </delete>
+
+<!--    修改账户余额-->
+  <update id="updateAccountMoney" parameterType="com.family.entity.account" >
+    update account
+    set
+      accountMoney = accountMoney + #{accountMoney,jdbcType=DOUBLE}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

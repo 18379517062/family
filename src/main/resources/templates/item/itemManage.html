@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>后台信息管理系统</title>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet" />
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+
+    <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet"/>
+    <link th:href="@{/css/plugins/footable/footable.core.css}" rel="stylesheet"/>
+    <!-- Sweet Alert -->
+    <link th:href="@{/css/plugins/sweetalert/sweetalert.css}" rel="stylesheet"/>
+    <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet"/>
+
+</head>
+<body>
+
+<div id="wrapper">
+    <nav class="navbar-default navbar-static-side" role="navigation" th:include="nav :: navigation"></nav>
+    <div id="page-wrapper" class="gray-bg">
+        <div class="border-bottom" th:include="header :: headerTop"></div>
+        <div class="row wrapper border-bottom white-bg page-heading" th:fragment="headerNav">
+            <div class="col-lg-10">
+                <h2>收支管理</h2>
+                <ol class="breadcrumb">
+                    <li>
+                        <a href="#">首页</a>
+                    </li>
+                    <li>
+                        <a>收支管理</a>
+                    </li>
+                    <li class="active">
+                        <strong>收支管理</strong>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+            </div>
+        </div>
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>搜索&amp;操作</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content" style="display: block;">
+
+
+                            <form action="/item/searchItem">
+                                <div class="row">
+                                    <div class="col-sm-2 m-b-xs">
+                                        <input id="title" name="title" placeholder="主题" class="form-control" type="text" />
+                                    </div>
+
+                                    <div class="col-sm-2 m-b-xs">
+                                            <select id="status" name="status" class="form-control"  onchange="selectState()" >
+                                                <option value="-1"> --- 全选 --- </option>
+                                                <option value="1" >支出</option>
+                                                <option value="0">收入</option>
+                                            </select>
+                                        </div>
+
+                                    <div class="col-sm-2 m-b-xs">
+
+                                       <select name="categoryId" id="categoryId" class="form-control" >
+                                            <option value="-1">---全选---</option>
+                                       </select>
+                                    </div>
+
+                                    <div class="col-sm-2 m-b-xs">
+                                        <input id="startTime" name="startTime"  class="form-control" type="date"  placeholder="起始时间" />
+                                    </div>
+                                    <div class="col-sm-2 m-b-xs">
+                                        <input id="endTime" name="endTime"  class="form-control" type="date"  placeholder="截止时间"/>
+                                    </div>
+                                    <div class="col-sm-2 m-b-xs">
+                                        <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-search"></i>&nbsp;&nbsp;&nbsp;&nbsp;<strong>搜索</strong></button>
+                                    </div>
+                                    <div class="col-sm-2 m-b-xs">
+                                        <a th:href="@{'download1'}" class="btn btn-primary btn-block" >&nbsp;&nbsp;&nbsp;&nbsp;<strong>导出到Excel</strong></a>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="row">
+                                <div class="col-sm-6 m-b-xs">
+                                    <a th:href="@{/item/itemEditPage}" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="left" title="" data-original-title="Refresh inbox"><i class="fa fa-plus"></i>&nbsp;&nbsp;&nbsp;&nbsp;记一笔&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                                </div>
+                                <div class="col-sm-6 m-b-xs">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>商品列表</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="table-responsive">
+                                <table class=" table table-hover" data-page-size="10">
+                                    <thead>
+                                    <tr>
+                                        <th width="5%">ID</th>
+                                        <th width="10%">商品标题</th>
+                                        <th width="8%">类别类型</th>
+                                        <th width="8%">类别名称</th>
+                                        <th width="8%">金额</th>
+                                        <th width="8%">币种</th>
+                                        <th width="8%">账户</th>
+                                        <th width="10%">地点</th>
+                                        <th width="10%">创建时间</th>
+                                        <th width="15%">备注</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="items : ${item}">
+                                        <td th:text="${items.id}">Onions</td>
+                                        <td th:text="${items.title}">Onions</td>
+
+                                        <td th:if="${items.status.equals('1')}"  th:text="支出">Onions</td>
+                                        <td th:if="${items.status.equals('0')}"  th:text="收入">Onions</td>
+
+                                        <td th:text="${items.getCategory().getCategoryName()}">categoryName</td>
+                                        <td th:text="${items.money}">Onions</td>
+                                        <td th:text="${items.currencyName}">Onions</td>
+                                        <td th:text="${items.getAccount().getAccountName()}">accountName</td>
+                                        <td th:text="${items.place}">Onions</td>
+                                        <td th:text="${#dates.format(items.createTime, 'yyyy-MM-dd')}">Onions</td>
+                                        <td th:text="${items.comment}">Onions</td>
+                                     
+                                        <td>
+                                            <a href="#" th:onclick="'javascript:deleteItem('+${items.id}+',2,0);'" title="删除"><i class="fa fa-trash-o text-navy"></i></a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <td colspan="8">
+                                            <ul id="pageHTML" class="pagination pull-right"></ul>
+                                        </td>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer" th:include="footer :: copyright"></div>
+    </div>
+</div>
+
+<!-- Mainly scripts -->
+<script th:src="@{/js/jquery-2.1.1.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/plugins/metisMenu/jquery.metisMenu.js}"></script>
+<script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+
+<!-- Peity -->
+<script th:src="@{/js/plugins/peity/jquery.peity.min.js}"></script>
+
+<!-- Custom and plugin javascript -->
+<script th:src="@{/js/inspinia.js}"></script>
+<script th:src="@{/js/plugins/pace/pace.min.js}"></script>
+
+<!-- iCheck -->
+<script th:src="@{/js/plugins/iCheck/icheck.min.js}"></script>
+
+<!-- Peity -->
+<script th:src="@{/js/demo/peity-demo.js}"></script>
+
+<!-- FooTable -->
+<script th:src="@{/js/plugins/footable/footable.all.min.js}"></script>
+
+<!-- common -->
+<script th:src="@{/js/common.js}"></script>
+
+<!-- Sweet alert -->
+<script th:src="@{/js/plugins/sweetalert/sweetalert.min.js}"></script>
+
+<script type="text/javascript">
+    function selectState(){
+        // 获取选中的值
+        var objS = document.getElementById("status");
+        var status = objS.options[objS.selectedIndex].value;
+        $.ajax({
+            type : "post",
+            url :"selectState",
+            data : {"status":status},
+            dataType : 'json',
+            success : function(data) {
+                // alert(data.returnMsg);
+                var list = data.categoryList;
+                $("#categoryId").empty();         //清空所有option
+                $("#categoryId").append("<option value="+-1+">--全选--</option>")
+                for (var i = 0; i < list.length; i++) {
+                    $("#categoryId").append("<option value= "+list[i].id+">"+list[i].categoryName+"</option>")
+                }
+            },error:function(){
+                alert("error");
+            }
+        });
+    }
+</script>
+
+
+<script th:inline="javascript">
+    var message = [[${message}]];
+    $(document).ready(function () {
+        if(message!=null){
+            swal({
+                title : "温馨提示",
+                text : message
+            });
+        }
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green',
+        });
+    });
+</script>
+
+<script th:inline="javascript">
+    var pageHTML = [[${pageHTML}]];
+    $(document).ready(function () {
+        $("#pageHTML").html(pageHTML);
+    });
+
+    /*<![CDATA[*/
+    function deleteItem(id,state,commendState){
+        var deleteTag;
+        if(state==2){
+            deleteTag = confirm("确定删除此条信息?");
+        } else {
+            deleteTag = true;
+        }
+        if(deleteTag){
+            $.ajax({
+                type: "POST",
+                url: "deleteItem?id="+id,
+                contentType: "application/json; charset=utf-8",
+                success: function(msg){
+                    window.location.reload();
+                },
+                error: function(){
+                    alert("系统异常！");
+                }
+            });
+        }
+    }
+    /*]]>*/
+</script>
+
+</body>
+
+</html>

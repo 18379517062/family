@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>后台信息管理系统</title>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet" />
+
+    <!-- Toastr style -->
+    <link th:href="@{/css/plugins/toastr/toastr.min.css}" rel="stylesheet"/>
+
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+
+    <!-- summernote style -->
+    <link th:href="@{/css/plugins/summernote/summernote.css}" rel="stylesheet" />
+    <link th:href="@{/css/plugins/summernote/summernote-bs3.css}" rel="stylesheet" />
+    <!-- Sweet Alert -->
+    <link th:href="@{/css/plugins/sweetalert/sweetalert.css}" rel="stylesheet"/>
+    <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet"/>
+</head>
+
+<body>
+
+<div id="wrapper">
+    <nav class="navbar-default navbar-static-side" role="navigation" th:include="nav :: navigation"></nav>
+    <div id="page-wrapper" class="gray-bg">
+        <div class="border-bottom" th:include="header :: headerTop"></div>
+        <div class="row wrapper border-bottom white-bg page-heading" th:fragment="headerNav">
+            <div class="col-lg-10">
+                <h2>收支管理</h2>
+                <ol class="breadcrumb">
+                    <li>
+                        <a href="#">首页</a>
+                    </li>
+                    <li>
+                        <a>收支管理</a>
+                    </li>
+                    <li class="active">
+                        <strong>收支新增或修改</strong>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+            </div>
+        </div>
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>新增或修改记录</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            <form id="formTag" action="/item/itemEdits" method="POST" class="form-horizontal" enctype="multipart/form-data">
+                                <div class="form-group"><label class="col-sm-2 control-label">标题：</label>
+                                    <div class="col-sm-10">
+                                        <input id="title" name="title" type="text" class="form-control" placeholder="0"/>
+                                    </div>
+                                </div>
+
+                                <div class="hr-line-dashed"></div>
+
+                                <div class="form-group"><label class="col-sm-2 control-label">收支属性：</label>
+                                    <div class="col-sm-10">
+                                        <select id="status" name="status" onchange="selectState()" required>
+                                            <option th:value="1" selected="selected">支出</option>
+                                            <option th:value="0">收入</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+
+
+                                <div class="form-group"><label class="col-sm-2 control-label">类别：</label>
+                                    <div class="col-sm-10">
+                                        <select name="categoryId" id="categoryId" class="form-control" >
+                                            <option value="0">--请选择分类--</option>
+<!--                                            <option th:each="category : ${category}" th:value="${category.id}" th:text="${category.categoryName}" >分类</option>-->
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+
+
+
+                                <div class="form-group"><label class="col-sm-2 control-label">金额：</label>
+                                    <div class="col-sm-10">
+                                        <input id="money" name="money" type="number" th:min="0" th:max="900000000" step="0.01" class="form-control"   placeholder="0.0"></input>
+                                    </div>
+                                </div>
+
+                                <div class="hr-line-dashed"></div>
+
+
+                                <div class="form-group"><label class="col-sm-2 control-label">币种：</label>
+                                    <div class="col-sm-10">
+                                        <select name="currencyName" id="currencyName" class="form-control" >
+<!--                                            <option value="人民币">&#45;&#45;人民币&#45;&#45;</option>-->
+                                            <option th:each="currency : ${currency}" th:value="${currency.currencyName}" th:text="${currency.currencyName}" th:selected="${currency.currencyName == '人民币'}">币种</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+
+                                <div class="form-group"><label class="col-sm-2 control-label">账户：</label>
+                                    <div class="col-sm-10">
+                                        <select name="accountId" id="accountId" class="form-control" >
+                                            <option value="0">--账户--</option>
+                                            <option th:each="account : ${account}" th:value="${account.id}" th:text="${account.accountName}" th:selected="${account.id == 1}">币种</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+
+<!--                                <div class="form-group"><label class="col-sm-2 control-label">时间：</label>-->
+<!--                                    <div class="col-sm-10">-->
+<!--&lt;!&ndash;                                        <input id="createTime" name="createTime" type="date" class="form-control"  />&ndash;&gt;-->
+<!--                                    </div>-->
+<!--                                </div>-->
+                                <div class="hr-line-dashed"></div>
+
+
+                                <div class="form-group"><label class="col-sm-2 control-label">地点：</label>
+                                    <div class="col-sm-10">
+                                        <input id="place" name="place" type="text" th:rows="1"  class="form-control"   th:text="无"></input>
+                                    </div>
+                                </div>
+
+                                <div class="hr-line-dashed"></div>
+
+                                <div class="form-group"><label class="col-sm-2 control-label">备注：</label>
+                                    <div class="col-sm-10">
+                                        <input id="comment" name="comment" type="text" th:rows="2"  class="form-control"   th:text="无"></input>
+                                    </div>
+                                </div>
+
+                                <div class="hr-line-dashed"></div>
+
+
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+                                        <button id="submitButton" class="btn btn-primary" type="submit">&nbsp;&nbsp;&nbsp;&nbsp;提&nbsp;&nbsp;&nbsp;&nbsp;交&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="footer" th:include="footer :: copyright"></div>
+    </div>
+</div>
+</body>
+<!-- Mainly scripts -->
+<script th:src="@{/js/jquery-2.1.1.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/plugins/metisMenu/jquery.metisMenu.js}"></script>
+<script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+
+<!-- Peity -->
+<script th:src="@{/js/plugins/peity/jquery.peity.min.js}"></script>
+
+<!-- Custom and plugin javascript -->
+<script th:src="@{/js/inspinia.js}"></script>
+<script th:src="@{/js/plugins/pace/pace.min.js}"></script>
+
+<!-- Toastr script -->
+<script th:src="@{/js/plugins/toastr/toastr.min.js}"></script>
+
+<!-- common -->
+<script th:src="@{/js/common.js}"></script>
+
+<!-- SUMMERNOTE -->
+<script th:src="@{/js/plugins/summernote/summernote.min.js}"></script>
+
+<!-- Sweet alert -->
+<script th:src="@{/js/plugins/sweetalert/sweetalert.min.js}"></script>
+
+<script type="text/javascript" th:src="@{/statusAjax.js}"></script>
+
+
+
+<script type="text/javascript">
+    function selectState(){
+        // 获取选中的值
+        var objS = document.getElementById("status");
+        var status = objS.options[objS.selectedIndex].value;
+        $.ajax({
+            type : "post",
+            url :"selectState",
+            data : {"status":status},
+            dataType : 'json',
+            success : function(data) {
+                // alert(data.returnMsg);
+                var list = data.categoryList;
+                $("#categoryId").empty();         //清空所有option
+                $("#categoryId").append("<option value= ''>"+"--请选择--"+"</option>")
+                for (var i = 0; i < list.length; i++) {
+                    $("#categoryId").append("<option value= "+list[i].id+">"+list[i].categoryName+"</option>")
+                }
+            },error:function(){
+                alert("error");
+            }
+        });
+    }
+</script>
+
+<script th:inline="javascript">
+    var message = [[${message}]];
+    $(document).ready(function () {
+        if(message!=null){
+            swal({
+                title : "温馨提示",
+                text : message
+            });
+        }
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green',
+        });
+    });
+</script>
+
+<script th:inline="javascript">
+    $(document).ready(function () {
+        //初始化编辑器
+        $('#summernote').summernote({
+            height: 300,
+            codemirror: {
+                mode: 'text/html',
+                htmlMode: true,
+                lineNumbers: true,
+                theme: 'monokai'
+            }
+        });
+        //编辑器赋值
+
+        //提交
+        $("#submitButton").click(function(){
+            // if($("#title").val() == ""){
+            //     toastr.error('请输入商品标题','提示');
+            //     return;
+            // }
+            // if($("#category").val() == 0){
+            //     toastr.error('请选择商品分类','提示');
+            //     return;
+            // }
+            // if($("#place").val() == ""){
+            //     toastr.error('请输入地址','提示');
+            //     return;
+            // }
+            // if($("#money").val() == 0){
+            //     toastr.error('请输入金额','提示');
+            //     return;
+            // }
+            $("#formTag").submit();
+        });
+    });
+</script>
+
+
+
+</html>

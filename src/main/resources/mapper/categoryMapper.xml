@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.family.mapper.categoryMapper">
+<!--  <resultMap id="BaseResultMap" type="com.family.entity.category">-->
+<!--    <id column="id" jdbcType="INTEGER" property="id" />-->
+<!--    <result column="categoryName" jdbcType="VARCHAR" property="categoryName" />-->
+<!--    <result column="status" jdbcType="VARCHAR" property="status" />-->
+<!--  </resultMap>-->
+  <sql id="Base_Column_List">
+    id, categoryName, status
+  </sql>
+
+  <!--添加新类别-->
+  <insert id="addCategory" keyProperty="id" parameterType="com.family.entity.category">
+        INSERT INTO category (categoryName,status) VALUES (#{categoryName},#{status})
+  </insert>
+
+  <!--查找类别是否存在-->
+  <select id="selectIsCategory"  resultType="java.lang.String">
+        SELECT categoryName from category  where categoryName = #{categoryName} and status = #{status}
+  </select>
+
+  <!--通过id查找类别-->
+  <select id="findById" resultType="com.family.entity.category" parameterType="java.lang.Integer">
+        SELECT * from category where id = #{id, jdbcType=INTEGER}
+    </select>
+
+  <!--通过status查找类别-->
+  <select id="findCategoryByStatus" resultType="com.family.entity.category">
+    select
+    <include refid="Base_Column_List" />
+    from category
+    where status = #{status}
+</select>
+<!--    通过名称模糊查找-->
+    <select id="findCategoryByName" resultType="com.family.entity.category">
+        select
+        <include refid="Base_Column_List" />
+        from category
+        where categoryName like '%${categoryName}%'
+    </select>
+
+
+    <!--    根据查询条件查找-->
+    <select id="searchCategory"  resultType="com.family.entity.category">
+         select   <include refid="Base_Column_List" />
+        from category
+        where
+         (categoryName like '%${categoryName}%' or categoryName = '') and
+         (status=#{status} or #{status}=-1)
+    </select>
+
+  <!--  删除类别-->
+    <delete id="delete" parameterType="java.lang.Integer">
+          DELETE FROM category WHERE id = #{id}
+    </delete>
+
+  <!--修改类别-->
+    <update id="updateCategory" parameterType="com.family.entity.category">
+           UPDATE category SET
+            categoryName = #{categoryName,jdbcType=VARCHAR},
+            status = #{status,jdbcType=VARCHAR}
+            WHERE  id =  #{id, jdbcType=INTEGER}
+    </update>
+
+</mapper>
+
+<!--  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">-->
+<!--    select-->
+<!--    <include refid="Base_Column_List" />-->
+<!--    from category-->
+<!--    where id = #{id,jdbcType=INTEGER}-->
+<!--  </select>-->
+<!--  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">-->
+<!--    delete from category-->
+<!--    where id = #{id,jdbcType=INTEGER}-->
+<!--  </delete>-->
+<!--  <insert id="insert" parameterType="com.family.entity.category">-->
+<!--    insert into category (id, categoryName, status-->
+<!--      )-->
+<!--    values (#{id,jdbcType=INTEGER}, #{categoryName,jdbcType=VARCHAR}, #{status,jdbcType=BIT}-->
+<!--      )-->
+<!--  </insert>-->
+<!--  <insert id="insertSelective" parameterType="com.family.entity.category">-->
+<!--    insert into category-->
+<!--    <trim prefix="(" suffix=")" suffixOverrides=",">-->
+<!--      <if test="id != null">-->
+<!--        id,-->
+<!--      </if>-->
+<!--      <if test="categoryName != null">-->
+<!--        categoryName,-->
+<!--      </if>-->
+<!--      <if test="status != null">-->
+<!--        status,-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--    <trim prefix="values (" suffix=")" suffixOverrides=",">-->
+<!--      <if test="id != null">-->
+<!--        #{id,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="categoryName != null">-->
+<!--        #{categoryName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="status != null">-->
+<!--        #{status,jdbcType=BIT},-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--  </insert>-->
+<!--  <update id="updateByPrimaryKeySelective" parameterType="com.family.entity.category">-->
+<!--    update category-->
+<!--    <set>-->
+<!--      <if test="categoryName != null">-->
+<!--        categoryName = #{categoryName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="status != null">-->
+<!--        status = #{status,jdbcType=BIT},-->
+<!--      </if>-->
+<!--    </set>-->
+<!--    where id = #{id,jdbcType=INTEGER}-->
+<!--  </update>-->
+<!--  <update id="updateByPrimaryKey" parameterType="com.family.entity.category">-->
+<!--    update category-->
+<!--    set categoryName = #{categoryName,jdbcType=VARCHAR},-->
+<!--      status = #{status,jdbcType=BIT}-->
+<!--    where id = #{id,jdbcType=INTEGER}-->
+<!--  </update>-->
+<!--  <resultMap id="BaseResultMap" type="com.family.entity.category">-->
+<!--    <id column="id" jdbcType="INTEGER" property="id" />-->
+<!--    <result column="categoryName" jdbcType="VARCHAR" property="categoryName" />-->
+<!--    <result column="status" jdbcType="VARCHAR" property="status" />-->
+<!--  </resultMap>-->
+<!--  <sql id="Base_Column_List">-->
+<!--    id, categoryName, status-->
+<!--  </sql>-->
+<!--  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">-->
+<!--    select-->
+<!--    <include refid="Base_Column_List" />-->
+<!--    from category-->
+<!--    where id = #{id,jdbcType=INTEGER}-->
+<!--  </select>-->
+<!--  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">-->
+<!--    delete from category-->
+<!--    where id = #{id,jdbcType=INTEGER}-->
+<!--  </delete>-->
+<!--  <insert id="insert" parameterType="com.family.entity.category">-->
+<!--    insert into category (id, categoryName, status-->
+<!--      )-->
+<!--    values (#{id,jdbcType=INTEGER}, #{categoryName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}-->
+<!--      )-->
+<!--  </insert>-->
+<!--  <insert id="insertSelective" parameterType="com.family.entity.category">-->
+<!--    insert into category-->
+<!--    <trim prefix="(" suffix=")" suffixOverrides=",">-->
+<!--      <if test="id != null">-->
+<!--        id,-->
+<!--      </if>-->
+<!--      <if test="categoryName != null">-->
+<!--        categoryName,-->
+<!--      </if>-->
+<!--      <if test="status != null">-->
+<!--        status,-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--    <trim prefix="values (" suffix=")" suffixOverrides=",">-->
+<!--      <if test="id != null">-->
+<!--        #{id,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="categoryName != null">-->
+<!--        #{categoryName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="status != null">-->
+<!--        #{status,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--  </insert>-->
+<!--  <update id="updateByPrimaryKeySelective" parameterType="com.family.entity.category">-->
+<!--    update category-->
+<!--    <set>-->
+<!--      <if test="categoryName != null">-->
+<!--        categoryName = #{categoryName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="status != null">-->
+<!--        status = #{status,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--    </set>-->
+<!--    where id = #{id,jdbcType=INTEGER}-->
+<!--  </update>-->
+<!--  <update id="updateByPrimaryKey" parameterType="com.family.entity.category">-->
+<!--    update category-->
+<!--    set categoryName = #{categoryName,jdbcType=VARCHAR},-->
+<!--      status = #{status,jdbcType=VARCHAR}-->
+<!--    where id = #{id,jdbcType=INTEGER}-->
+<!--  </update>-->
+<!--  <resultMap id="BaseResultMap" type="com.family.entity.category">-->
+<!--    <id column="categoryName" jdbcType="VARCHAR" property="categoryName" />-->
+<!--    <result column="status" jdbcType="VARCHAR" property="status" />-->
+<!--  </resultMap>-->
+<!--  <sql id="Base_Column_List">-->
+<!--    categoryName, status-->
+<!--  </sql>-->
+<!--  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">-->
+<!--    select-->
+<!--    <include refid="Base_Column_List" />-->
+<!--    from category-->
+<!--    where categoryName = #{categoryName,jdbcType=VARCHAR}-->
+<!--  </select>-->
+<!--  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">-->
+<!--    delete from category-->
+<!--    where categoryName = #{categoryName,jdbcType=VARCHAR}-->
+<!--  </delete>-->
+<!--  <insert id="insert" parameterType="com.family.entity.category">-->
+<!--    insert into category (categoryName, status)-->
+<!--    values (#{categoryName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR})-->
+<!--  </insert>-->
+<!--  <insert id="insertSelective" parameterType="com.family.entity.category">-->
+<!--    insert into category-->
+<!--    <trim prefix="(" suffix=")" suffixOverrides=",">-->
+<!--      <if test="categoryName != null">-->
+<!--        categoryName,-->
+<!--      </if>-->
+<!--      <if test="status != null">-->
+<!--        status,-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--    <trim prefix="values (" suffix=")" suffixOverrides=",">-->
+<!--      <if test="categoryName != null">-->
+<!--        #{categoryName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="status != null">-->
+<!--        #{status,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--  </insert>-->
+<!--  <update id="updateByPrimaryKeySelective" parameterType="com.family.entity.category">-->
+<!--    update category-->
+<!--    <set>-->
+<!--      <if test="status != null">-->
+<!--        status = #{status,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--    </set>-->
+<!--    where categoryName = #{categoryName,jdbcType=VARCHAR}-->
+<!--  </update>-->
+<!--  <update id="updateByPrimaryKey" parameterType="com.family.entity.category">-->
+<!--    update category-->
+<!--    set status = #{status,jdbcType=VARCHAR}-->
+<!--    where categoryName = #{categoryName,jdbcType=VARCHAR}-->
+<!--  </update>-->

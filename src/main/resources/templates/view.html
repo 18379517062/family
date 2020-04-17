@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ECharts</title>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <script src="https://cdn.bootcss.com/echarts/4.6.0/echarts.min.js"></script>
+</head>
+<body>
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+<div id="main" style="width: 600px;height:400px;"></div>
+
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+
+    myChart.showLoading();  //开始时的加载动画，网络不好时不会出现空坐标系
+    var myChart = echarts.init(document.getElementById('main'));
+    myChart.hideLoading(); //数据加载完之后隐藏加载动画
+
+    // 新建productName与nums数组来接受数据，因为我们
+    var productName = [];
+    var nums = [];
+
+    //AJAX接收数据主体
+    $.ajax({
+        type:"GET",
+        url:"/project",
+        dataType:"json",
+        async:false,
+        success:function (result) {
+
+            for (var i = 0; i < result.length; i++){
+                productName.push(result[i].productName);
+                nums.push(result[i].nums);
+            }
+
+        },
+        error :function(errorMsg) {
+            alert("获取后台数据失败！");
+        }
+    });
+
+    // 指定图表的配置项和数据
+    var option = {
+        title: {
+            text: 'ECharts 入门示例'
+        },
+        tooltip: {},
+        legend: {
+            data:['销量']
+        },
+        xAxis: {
+            //结合
+            data: productName
+        },
+
+        yAxis: {},
+        series: [{
+            name: '销量',
+            type: 'bar',
+            //结合
+            data: nums
+        }]
+    };
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+
+    // //自动异步配置属性，可以放到ajaxsuccess下面
+    // myChart.setOption({
+    //     title: {
+    //         text: '异步数据加载示例'
+    //     },
+    //     tooltip: {},
+    //     legend: {
+    //         data:['销量']
+    //     },
+    //     xAxis: {
+    //         data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+    //     },
+    //     yAxis: {},
+    //     series: [{
+    //         name: '销量',
+    //         type: 'bar',
+    //         data: [5, 20, 36, 10, 10, 20]
+    //     }]
+    // });
+    //
+    //
+    // //先陪着我属性在添加需要的空内容
+    // myChart.setOption({
+    //     title: {
+    //         text: '异步数据加载示例'
+    //     },
+    //     tooltip: {},
+    //     legend: {
+    //         data:['销量']
+    //     },
+    //     xAxis: {
+    //         data: []
+    //     },
+    //     yAxis: {},
+    //     series: [{
+    //         name: '销量',
+    //         type: 'bar',
+    //         data: []
+    //     }]
+    // });
+    //
+    // // 异步加载数据
+    // $.get('data.json').done(function (data) {
+    //     // 填入数据
+    //     myChart.setOption({
+    //         xAxis: {
+    //             data: data.categories
+    //         },
+    //         series: [{
+    //             // 根据名字对应到相应的系列
+    //             name: '销量',
+    //             data: data.data
+    //         }]
+    //     });
+    // });
+</script>
+</body>
+
+<!--dataset: {-->
+<!--// 提供一份数据。-->
+<!--source: [-->
+<!--['product', '2015', '2016', '2017'],-->
+<!--['Matcha Latte', 43.3, 85.8, 93.7],-->
+<!--['Milk Tea', 83.1, 73.4, 55.1],-->
+<!--['Cheese Cocoa', 86.4, 65.2, 82.5],-->
+<!--['Walnut Brownie', 72.4, 53.9, 39.1]-->
+<!--]-->
+<!--},-->
+<!--// 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。-->
+<!--xAxis: {type: 'category'},-->
+<!--// 声明一个 Y 轴，数值轴。-->
+<!--yAxis: {},-->
+<!--// 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。-->
+<!--series: [-->
+<!--{type: 'bar'},-->
+<!--{type: 'bar'},-->
+<!--{type: 'bar'}-->
+<!--]-->
