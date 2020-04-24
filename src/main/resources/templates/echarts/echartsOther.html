@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>每日报表</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet"/>
+    <link th:href="@{/css/animate.css}" rel="stylesheet"/>
+    <!-- Toastr style -->
+    <link th:href="@{/css/plugins/toastr/toastr.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+    <!-- summernote style -->
+    <link th:href="@{/css/plugins/summernote/summernote.css}" rel="stylesheet" />
+    <link th:href="@{/css/plugins/summernote/summernote-bs3.css}" rel="stylesheet" />
+    <!-- Sweet Alert -->
+    <link th:href="@{/css/plugins/sweetalert/sweetalert.css}" rel="stylesheet"/>
+    <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet"/>
+</head>
+<body onload="selectStatusAndYear()">
+<div id="wrapper">
+    <nav class="navbar-default navbar-static-side" role="navigation" th:include="nav :: navigation"></nav>
+    <div id="page-wrapper" class="gray-bg">
+        <div class="row wrapper border-bottom white-bg page-heading" th:fragment="headerNav">
+            <div class="col-lg-10">
+                <h2>每日报表</h2>
+                <ol class="breadcrumb">
+                    <li>
+                        <a href="#">首页</a>
+                    </li>
+                    <li class="active">
+                        <strong>每日报表</strong>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+            </div>
+        </div>
+        <div class="wrapper wrapper-content">
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>搜索&amp;操作</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content" style="display: block;">
+
+                            <div class="row">
+
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >请选择类别：</b>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <select id="status" name="status" class="form-control"   onchange="selectStatusAndYear()" >
+                                        <option value="1" selected="selected">支出</option>
+                                        <option value="0" >收入</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >请选择年份：</b>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <select id="year" name="year" class="form-control"   onchange="selectStatusAndYear()" >
+                                        <option th:each="year ,yearStat:${yearList}" th:value="${year}" th:text="${year}"
+                                                th:attr ="selected=${yearStat.index==0?true:false}"></option>
+                                    </select>
+                                </div>
+
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >请选择月份：</b>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <select id="month" name="month" class="form-control"   onchange="selectStatusAndYear()" >
+                                        <option value="0" selected="selected">1月</option>
+                                        <option value="1">2月</option>
+                                        <option value="2">3月</option>
+                                        <option value="3">4月</option>
+                                        <option value="4">5月</option>
+                                        <option value="5">6月</option>
+                                        <option value="6">7月</option>
+                                        <option value="7">8月</option>
+                                        <option value="8">9月</option>
+                                        <option value="9">10月</option>
+                                        <option value="10">11月</option>
+                                        <option value="11">12月</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5 id="statusName">月总收入/月总支出</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <h1 id="monthMoney" class="no-margins" >月总金额</h1>
+                            <small>...</small>
+                            <span class="label label-success pull-right">人民币</span>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5 id="statusDayName">最大收入月/最大支出月</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <h1 id="maxDayName" class="no-margins" >日的名字+金额</h1>
+                            <small id="maxDayMoney">人民币</small>
+                            <span class="label label-success pull-right">人民币</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>占比最大的来源</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <h1 id="maxCategoryName" class="no-margins" >来源名字+金额</h1>
+                            <small id="maxCategoryMoney">人民币</small>
+                            <span class="label label-success pull-right">人民币</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>总结</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <h1 id="summary" class="no-margins" style="font-size:27px">总结</h1>
+                            <small>...</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div  class="ibox float-e-margins" >
+                        <div  class="ibox float-e-margins">
+                            <div id="main" class="ibox float-e-margins" style="width: 800px;height:500px; background-color: white "></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="footer" th:include="footer :: copyright"></div>
+    </div>
+
+</div>
+
+
+
+<!-- Mainly scripts -->
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+<script src="https://cdn.bootcss.com/echarts/4.6.0/echarts.min.js"></script>
+<script th:src="@{/js/plugins/metisMenu/jquery.metisMenu.js}"></script>
+<script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+<!-- Peity -->
+<script th:src="@{/js/plugins/peity/jquery.peity.min.js}"></script>
+<!-- Custom and plugin javascript -->
+<script th:src="@{/js/inspinia.js}"></script>
+<script th:src="@{/js/plugins/pace/pace.min.js}"></script>
+<!-- Toastr script -->
+<script th:src="@{/js/plugins/toastr/toastr.min.js}"></script>
+<!-- common -->
+<script th:src="@{/js/common.js}"></script>
+<!-- SUMMERNOTE -->
+<script th:src="@{/js/plugins/summernote/summernote.min.js}"></script>
+
+
+
+<script type="text/javascript">
+    function selectStatusAndYear() {
+        var myChart = echarts.init(document.getElementById('main'));
+        var dataMap = {};
+        var xData = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+
+        var arr = new Map(); //先声明一维
+        var categoryName = [];
+
+        //获取每月天数
+        function mGetDate(year, month) {
+            var d = new Date(year, month, 0);
+            return d.getDate();
+        }
+
+        // 获取选中的值:年份
+        var years = document.getElementById("year").value;
+        var months = document.getElementById("month").value;
+        var status = document.getElementById("status").value;
+        var statusName;   //报表title上的文字
+        if(status == "0")
+            statusName = "收入";
+        else
+            statusName = "支出";
+
+
+        //获取每月的日数下标，存入，[1,2-----31]
+        var xMap = new Map();
+        for (var i = 0; i < 12; i++) {
+            var n = mGetDate(years, i + 1);  //获取天数
+            var days = [];
+            for (var j = 1; j <= n; j++)
+                days.push(j);
+            xMap.set(i, days);     //i表示月份0-11 ，days[]，表示每月的天数。作为x轴坐标
+        }
+
+
+
+        //AJAX接收数据主体
+        $.ajax({
+            type: "GET",
+            url: "../echarts/selectStatusAndYear?status="+status+"&year="+years,
+            dataType: "json",
+            async: false,
+            success: function (result) {
+                for (var i = 0; i < result.length; i++) {
+
+                    var cname = result[i].category.categoryName;  //获取类别名
+                    var d = new Date(result[i].createTime);  //传过来的是string类型
+                    var m = d.getMonth();  //获取当前月份(0-11,0代表1月)
+                    var td = d.getDate();  //获取本月当前日(1-31)
+
+                    if (arr.has(cname)) {  //map包含了该categoryName
+                        var mMap = arr.get(cname);  //取出mMap
+                        var dMap = mMap.get(m);
+                        dMap.set(td, dMap.get(td) + (result[i].money));  //将同一天的数据相加
+                        mMap.set(m, dMap);  //将同月份的数值加到一起
+                        arr.set(cname, mMap);  //cname是类别名称，map是每月每日收入  arr(类别,mMap(月，dMap(日，收入)))
+
+                    } else {
+                        categoryName.push(cname);  //将所由类别存入数组
+                        var dMap = new Map();  //定义一个dMap 存放每日的收入  key:1-31（日），value：当日总收入
+
+                        var mMap = new Map();  //定义一个mMap,  key:0-11（月），value：本月每日总收入
+                        for (var j = 0; j < 12; j++) {  //月份：数值
+                            var temp = new Map();
+                            for (var k = 1; k <= mGetDate(years, j + 1); k++) {  //总天数，每日收入初始化为0
+                                if (j == m && td == k)   //该日设值
+                                    temp.set(k, result[i].money);
+                                else
+                                    temp.set(k, 0.0);
+                            }
+                            mMap.set(j, temp);    //初始化：key:0-11（月），value：map（），map：每日：收入
+                        }
+                        arr.set(cname, mMap);  //cname是类别名称，map是每月每日收入  arr(类别,mMap(月，dMap(日，收入)))
+                    }
+                }
+            },
+            error: function (errorMsg) {
+                alert("获取后台数据失败！");
+            }
+        });
+
+
+
+        function dataFormatter(obj) {
+            var temp;
+            for (var month = 0; month < 12; month++) {
+                var pList = [];
+                pList = xMap.get(month); //每月天数[1,2---31]
+                temp = obj[month];
+                // alert(pList);
+                // alert(temp+" "+temp.length);
+                for (var z = 0; z < temp.length; z++) { //temp.length = 31 每个月的日数
+                    obj[month][z] = { //每个月的数据设置name：value
+                        name: pList[z],  //每月每日的日数 ：1,2，--31
+                        value: temp[z]   //每月每日的收入:  xx
+                    };
+                }
+            }
+            return obj;
+        }
+
+
+        // for (var i = 0; i < categoryName.length; i++) {
+        //     var mon = [];
+        //     for (var j = 0; j < 12; j++) {
+        //         var num = [];   //每月1-31日的所以收入
+        //         for (var k = 1; k <= arr.get(categoryName[i]).get(j).size; k++) {
+        //             num.push(arr.get(categoryName[i]).get(j).get(k));
+        //         }
+        //         mon.push(num);
+        //     }
+
+
+        //寻找x年x月内哪个类别的金额占比最大，若金额全为0则显示无
+        var monthMoney = 0.0;  //x月内所有类别的总收入或支出
+        var maxCategoryName;  //占比最大的类别的名字
+        var maxCategoryMoney = 0.0;
+        var maxCategoryIndex = -1;  //寻找一个月内哪个类别的金额占比最大的下标，
+
+        for (var i = 0; i < categoryName.length; i++) {
+            var amount = 0.0;
+
+            for (var k = 1; k <= arr.get(categoryName[i]).get(Number(months)).size; k++) {
+                amount += arr.get(categoryName[i]).get(Number(months)).get(k); //获取某类别x月的总收入或支出的前
+            }
+
+            if (maxCategoryMoney < amount) {
+                maxCategoryMoney = amount;  //最大值
+                maxCategoryIndex = i;  //最大值的类别id下标
+            }
+            monthMoney += amount;
+        }
+        if(maxCategoryIndex == -1)   //若金额全为0则显示无
+            maxCategoryName = "无";
+        else
+            maxCategoryName = categoryName[maxCategoryIndex];
+
+
+
+        //寻找x年x月内哪日的收入支出金额最大
+        var maxDayName;  //金额最大的月份名字
+        var maxDayMoney = 0.0;
+        var maxDayIndex = -1;  //寻找一年内哪个月的金额占比最大的下标，
+        for(var k =1;k<=mGetDate(years,months+1);k++){  //将每天的所有类别的值做总和，选最大的那天
+            var amount = 0.0;
+            for (var i = 0; i < categoryName.length; i++) {
+                amount += arr.get(categoryName[i]).get(Number(months)).get(k); //获取某类别一年的总收入或支出的前
+            }
+            if (maxDayMoney < amount) {
+                maxDayMoney = amount;  //最大值
+                maxDayIndex = k;  //最大值的类别id下标
+            }
+        }
+        if(maxDayIndex == -1) {  //若金额全为0则显示无
+            maxDayMoney = "无";
+            maxDayName = '无';
+        }
+        else
+            maxDayName = maxDayIndex+"日";
+
+
+        //给4个框赋值
+        if(status == "0") { //收入
+            document.getElementById("statusName").innerHTML = Number(months)+1+"月总收入";
+            document.getElementById("statusDayName").innerHTML = Number(months)+1 +"月最大收入日";
+            document.getElementById("summary").innerHTML = "赚赚赚(｡￫‿￩｡)";
+        }
+        else {
+            document.getElementById("statusName").innerHTML = Number(months)+1 +"月总支出";
+            document.getElementById("statusDayName").innerHTML = Number(months)+1 +"月最大支出日";
+            document.getElementById("summary").innerHTML = "花花花(＾∀＾)";
+        }
+        document.getElementById("monthMoney").innerHTML = monthMoney;
+
+        document.getElementById("maxDayName").innerHTML = maxDayName;
+        document.getElementById("maxDayMoney").innerHTML = maxDayMoney;
+
+        document.getElementById("maxCategoryName").innerHTML = maxCategoryName;
+        document.getElementById("maxCategoryMoney").innerHTML = maxCategoryMoney;
+
+
+
+
+
+
+        var series2 = [];
+        for (var i = 0; i < categoryName.length; i++) {
+            var mon = [];
+            for (var j = 0; j < 12; j++) {
+                var num = [];   //每月1-31日的所以收入
+                for (var k = 1; k <= arr.get(categoryName[i]).get(j).size; k++) {
+                    num.push(arr.get(categoryName[i]).get(j).get(k));
+                }
+                mon.push(num);
+            }
+            //将数据保存
+            var n = categoryName[i];
+            dataMap[n] = dataFormatter({
+                0: mon[0],
+                1: mon[1],
+                2: mon[2],
+                3: mon[3],
+                4: mon[4],
+                5: mon[5],
+                6: mon[6],
+                7: mon[7],
+                8: mon[8],
+                9: mon[9],
+                10: mon[10],
+                11: mon[11]
+            });
+
+            series2.push({
+                name: categoryName[i],
+                type: 'line',
+                stack: '总量',
+                label: {
+                    show: true,
+                    position: 'inside'
+                },
+            });
+
+        }
+
+        var options = [];    //定义一个数组变量用于存放配置
+
+        for (var i = 0; i < 12; i++) {   //月份
+            var series1 = [];
+            for (var j = 0; j < categoryName.length; j++) {
+                var n = categoryName[j];
+                series1.push({
+                    data: dataMap[n][i]
+                })
+            }
+            options.push({
+                title: {
+                    text: years+"年"+ (i + 1) + '月每日'+statusName+'报表',
+                    x: 'center',
+                    y: 'top'
+                },
+                xAxis: {name: '月', data: xMap.get(i)},
+                series: series1
+            })
+        }
+
+
+        option = {
+            baseOption: {
+                timeline: {
+                    name: '日',
+                    axisType: 'category',
+                    // realtime: false,
+                    // loop: false,
+                    autoPlay: true,
+                    // currentIndex : ,
+                    playInterval: 1000,
+                    // controlStyle: {
+                    //     position: 'left'
+                    // },
+                    data: xData
+                },
+                title: {},
+                tooltip: {},
+                toolbox: {
+                    show: true,
+                    feature: {
+                        magicType: {type: ['line', 'bar']},  //切换为折线图，切换为柱状图
+                        dataView: {readOnly: false},
+                        restore: {},
+                        saveAsImage: {}
+                    }
+                },
+                legend: {
+                    orient: 'horizontal',
+                    x: 'center',
+                    top: '30px'
+                },
+                calculable: true,
+                grid: {
+                    right: '15%',
+                    top: 80,
+                    bottom: 100,
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow',
+                            label: {
+                                show: true,
+                                formatter: function (params) {
+                                    return params.value.replace('\n', '');
+                                }
+                            }
+                        }
+                    }
+                },
+                xAxis: [
+                    {
+                        'type': 'category',
+                        'axisLabel': {'interval': 0},
+                        name: '月',
+                        splitLine: {show: false}
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '收入（元）'
+                    }
+                ],
+                series: series2
+
+            },
+            options: options
+        };
+        myChart.setOption(option,true);
+
+        // myChart.on('click', function (params) { //触发事件
+        //     alert(params.name+":"+params.value+":"+params.);
+        //     console.log(params);
+        // });
+    }
+</script>
+</body>
