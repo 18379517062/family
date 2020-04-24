@@ -11,7 +11,7 @@ public class user {
 
     private String realName;
 
-    private Boolean sex;
+    private String sex;
 
     private String phone;
 
@@ -25,8 +25,14 @@ public class user {
 
     private String headPicture;
 
+    public user(){}
 
-    public user(Integer id, String userName, String password, String realName, Boolean sex, String phone, String email, Date birthday, Date createTime, Date updateTime, String headPicture) {
+    public user(Integer id, String userName) {
+        this.id = id;
+        this.userName = userName;
+    }
+
+    public user(Integer id, String userName, String password, String realName, String sex, String phone, String email, Date birthday, Date createTime, Date updateTime, String headPicture) {
         this.id = id;
         this.userName = userName;
         this.password = password;
@@ -104,11 +110,11 @@ public class user {
         this.phone = phone == null ? null : phone.trim();
     }
 
-    public Boolean getSex() {
+    public String getSex() {
         return sex;
     }
 
-    public void setSex(Boolean sex) {
+    public void setSex(String sex) {
         this.sex = sex;
     }
 
@@ -120,7 +126,7 @@ public class user {
         this.email = email == null ? null : email.trim();
     }
 
-    public String getRealNJame() {
+    public String getRealName() {
         return realName;
     }
 

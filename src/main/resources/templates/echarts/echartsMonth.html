@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <title>后台信息管理系统</title>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet"/>
+    <link th:href="@{/css/animate.css}" rel="stylesheet"/>
+    <!-- Toastr style -->
+    <link th:href="@{/css/plugins/toastr/toastr.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+    <!-- summernote style -->
+    <link th:href="@{/css/plugins/summernote/summernote.css}" rel="stylesheet" />
+    <link th:href="@{/css/plugins/summernote/summernote-bs3.css}" rel="stylesheet" />
+    <!-- Sweet Alert -->
+    <link th:href="@{/css/plugins/sweetalert/sweetalert.css}" rel="stylesheet"/>
+    <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet"/>
+
+</head>
+
+<body onload="selectStatusAndYear()">
+<div id="wrapper">
+    <nav class="navbar-default navbar-static-side" role="navigation" th:include="nav :: navigation"></nav>
+    <div id="page-wrapper" class="gray-bg">
+        <div class="row wrapper border-bottom white-bg page-heading" th:fragment="headerNav">
+            <div class="col-lg-10">
+                <h2>月度报表</h2>
+                <ol class="breadcrumb">
+                    <li>
+                        <a href="#">首页</a>
+                    </li>
+                    <li>
+                        <a th:href="@{echartsYearPage}">年度报表</a>
+                    </li>
+                    <li class="active">
+                        <strong>月度报表</strong>
+                    </li>
+                    <li>
+                        <a th:href="@{echartsDayPage}">每日报表</a>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+            </div>
+        </div>
+        <div class="wrapper wrapper-content">
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>搜索&amp;操作</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content" style="display: block;">
+
+                            <div class="row">
+
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >请选择类别：</b>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <select id="status" name="status" class="form-control"   onchange="selectStatusAndYear()" >
+                                        <option value="1" selected="selected">支出</option>
+                                        <option value="0" >收入</option>
+                                    </select>
+                                </div>
+
+
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >请选择年份：</b>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <select id="year" name="year" class="form-control"   onchange="selectStatusAndYear()" >
+                                        <option th:each="year ,yearStat:${yearList}" th:value="${year}" th:text="${year}"
+                                                th:attr ="selected=${yearStat.index==0?true:false}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+<!--                            <span class="label label-success pull-right">income</span>-->
+                            <h5 id="statusName">总收入/总支出</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <h1 id="yearMoney" class="no-margins" >年总金额</h1>
+                            <small>...</small>
+                            <span class="label label-success pull-right">人民币</span>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+<!--                            <span class="label label-info pull-right">cost</span>-->
+                            <h5 id="statusMonthName">最大收入月/最大支出月</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <h1 id="maxMonthName" class="no-margins" >月的名字+金额</h1>
+                            <small id="maxMonthMoney">人民币</small>
+                            <span class="label label-success pull-right">人民币</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>占比最大的来源</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <h1 id="maxCategoryName" class="no-margins" >来源名字+金额</h1>
+                            <small id="maxCategoryMoney">人民币</small>
+                            <span class="label label-success pull-right">人民币</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>总结</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <h1 id="summary" class="no-margins" style="font-size:27px">总结</h1>
+                            <small>...</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div  class="ibox float-e-margins" >
+                        <div  class="ibox float-e-margins">
+                            <div id="main" class="ibox float-e-margins" style="width: 800px;height:500px; background-color: white "></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer" th:include="footer :: copyright"></div>
+    </div>
+
+</div>
+
+<!-- Mainly scripts -->
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+<script src="https://cdn.bootcss.com/echarts/4.6.0/echarts.min.js"></script>
+<script th:src="@{/js/plugins/metisMenu/jquery.metisMenu.js}"></script>
+<script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+<!-- Peity -->
+<script th:src="@{/js/plugins/peity/jquery.peity.min.js}"></script>
+<!-- Custom and plugin javascript -->
+<script th:src="@{/js/inspinia.js}"></script>
+<script th:src="@{/js/plugins/pace/pace.min.js}"></script>
+<!-- Toastr script -->
+<script th:src="@{/js/plugins/toastr/toastr.min.js}"></script>
+<!-- common -->
+<script th:src="@{/js/common.js}"></script>
+<!-- SUMMERNOTE -->
+<script th:src="@{/js/plugins/summernote/summernote.min.js}"></script>
+
+
+
+
+<script>
+    function selectStatusAndYear() {
+        var myChart = echarts.init(document.getElementById('main'));
+        var xData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        var arr = new Map(); //先声明一维
+        var categoryName = [];
+
+        // 获取选中的值:年份
+        var year = document.getElementById("year").value;
+        var status = document.getElementById("status").value;
+        var statusName;   //报表title上的文字
+        if(status == "0")
+            statusName = "收入";
+        else
+            statusName = "支出";
+
+
+        //AJAX接收数据主体
+        $.ajax({
+            type: "GET",
+            url: "../echarts/selectStatusAndYear?status="+status+"&year="+year,
+            dataType: "json",
+            async: false,
+            success: function (result) {
+                for (var i = 0; i < result.length; i++) {
+                    var cname = result[i].category.categoryName;
+                    if (arr.has(cname)) {  //map包含了该categoryName
+                        var map = arr.get(cname);  //取出map
+                        var d = new Date(result[i].createTime);  //传过来的是string类型
+                        var m = d.getMonth();
+                        var v = map.get(m) + (result[i].money);
+                        map.set(m, v);  //将同月份的数值加到一起
+                        arr.set(cname, map);
+                    } else {
+                        categoryName.push(cname);  //将所由类别存入数组
+                        var map = new Map();  //定义一个map
+                        for (var j = 0; j < 12; j++) {  //月份：数值
+                            map.set(j, 0.0);
+                        }
+                        var d = new Date(result[i].createTime);  //传过来的是string类型
+                        var m = d.getMonth();
+                        var v = map.get(m) + (result[i].money);
+                        map.set(m, v);  //将同月份的数值加到一起
+                        arr.set(cname, map); //cname是类别名称，map是每月的总收入
+                    }
+                }
+            },
+            error: function (errorMsg) {
+                alert("获取后台数据失败！");
+            }
+        });
+
+        //寻找一年内哪个类别的金额占比最大，若金额全为0则显示无
+        var yearMoney = 0.0;  //一年内所有类别的总收入或支出
+        var maxCategoryName;  //占比最大的类别的名字
+        var maxCategoryMoney = 0.0;
+        var maxCategoryIndex = -1;  //寻找一年内哪个类别的金额占比最大的下标，
+        for (var i = 0; i < categoryName.length; i++) {
+            var amount = 0.0;
+            for (var j = 0; j < 12; j++) {
+                amount += arr.get(categoryName[i]).get(j) //获取某类别一年的总收入或支出的前
+            }
+            if (maxCategoryMoney < amount) {
+                maxCategoryMoney = amount;  //最大值
+                maxCategoryIndex = i;  //最大值的类别id下标
+            }
+            yearMoney += amount;
+        }
+        if(maxCategoryIndex == -1)   //若金额全为0则显示无
+            maxCategoryName = "无";
+        else
+            maxCategoryName = categoryName[maxCategoryIndex];
+
+
+
+        //寻找一年内哪个月的收入支出金额最大
+        var maxMonthName;  //金额最大的月份名字
+        var maxMonthMoney = 0.0;
+        var maxMonthIndex = -1;  //寻找一年内哪个月的金额占比最大的下标，
+        for (var j = 0; j < 12; j++) {
+            var amount = 0.0;
+            for (var i = 0; i < categoryName.length; i++) {
+                amount += arr.get(categoryName[i]).get(j) //获取某类别一年的总收入或支出的前
+            }
+            if (maxMonthMoney < amount) {
+                maxMonthMoney = amount;  //最大值
+                maxMonthIndex = j;  //最大值的类别id下标
+            }
+        }
+        if(maxMonthIndex == -1)   //若金额全为0则显示无
+            maxMonthName = "无";
+        else
+            maxMonthName = maxMonthIndex+1+"月";
+
+
+        //给4个框赋值
+        if(status == "0") { //收入
+            document.getElementById("statusName").innerHTML = "总收入";
+            document.getElementById("statusMonthName").innerHTML = "最大收入月";
+            document.getElementById("summary").innerHTML = "挣钱光荣(｡￫‿￩｡)";
+        }
+        else {
+            document.getElementById("statusName").innerHTML = "总支出";
+            document.getElementById("statusMonthName").innerHTML = "最大支出月";
+            document.getElementById("summary").innerHTML = "花钱快乐(＾∀＾)";
+        }
+        document.getElementById("yearMoney").innerHTML = yearMoney;
+
+        document.getElementById("maxMonthName").innerHTML = maxMonthName;
+        document.getElementById("maxMonthMoney").innerHTML = maxMonthMoney;
+
+        document.getElementById("maxCategoryName").innerHTML = maxCategoryName;
+        document.getElementById("maxCategoryMoney").innerHTML = maxCategoryMoney;
+
+
+
+        var series = [];    //定义一个数组变量用于存放配置
+        for (var i = 0; i < categoryName.length; i++) {
+            var num = [];
+            for (var j = 0; j < 12; j++) {
+                num.push(arr.get(categoryName[i]).get(j));
+            }
+            series.push({
+                name: categoryName[i],
+                type: 'line',
+                stack: '总量',
+                label: {
+                    show: true,
+                    position: 'inside'
+                },
+                data: num
+            });
+        }
+
+        var option = {
+            title: {
+                text: year+'年'+statusName+'报表',
+                x: 'center'
+            },
+            tooltip: {
+                trigger: 'axis',
+            },
+            legend: {
+                orient: 'horizontal',
+                x: 'center',
+                top: '30px'
+            },
+            grid: {
+                left: '5%',
+                right: '10%',
+                bottom: '5%',
+                containLabel: true
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    magicType: {type: ['line', 'bar']},  //切换为折线图，切换为柱状图
+                    dataView: {readOnly: false},
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                // boundaryGap: true,
+                name: '月份',
+                data: xData
+            },
+            yAxis: {
+                name: '钱',
+                type: 'value'
+            },
+
+            series: series    //讲数组变量赋值即可
+        };
+
+        myChart.setOption(option,true);
+    }
+
+
+</script>
+</body>
+</html>

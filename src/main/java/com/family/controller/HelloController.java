@@ -79,14 +79,15 @@ public class HelloController {
         return "view2";
     }
 
-    @RequestMapping("/echartsIncome")
-    public String echartsIncome(){
-        return "/echarts/echartsIncome";
-    }
 
     @RequestMapping("/echartsIncomes")
     public String echartsIncomes(){
-        return "/echarts/echartsIncomes";
+        return "echartsMonth";
+    }
+
+    @RequestMapping("/echartsIncome3")
+    public String echartsIncome3(){
+        return "echartsDay";
     }
 
 }

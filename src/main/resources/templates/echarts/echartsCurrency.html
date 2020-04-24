@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>后台信息管理系统</title>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet" />
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+
+    <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet"/>
+    <link th:href="@{/css/plugins/footable/footable.core.css}" rel="stylesheet"/>
+    <style>
+
+        .selected{font-weight:bold; background: #ff99cc; color:#fff;}
+
+    </style>
+</head>
+
+<body onload="selectCurrency()">
+
+<div id="wrapper">
+    <nav class="navbar-default navbar-static-side" role="navigation" th:include="nav :: navigation"></nav>
+    <div id="page-wrapper" class="gray-bg">
+        <div class="row wrapper border-bottom white-bg page-heading" th:fragment="headerNav">
+            <div class="col-lg-10">
+                <h2>汇率管理</h2>
+                <ol class="breadcrumb">
+                    <li>
+                        <a href="#">首页</a>
+                    </li>
+                    <li class="active">
+                        <strong>汇率管理</strong>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+            </div>
+        </div>
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>搜索&amp;操作</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content" style="display: block;">
+
+
+                            <div class="row">
+
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >选择币种作中间换算：</b>
+                                </div>
+
+                                <div class="col-sm-2 m-b-xs">
+                                    <select id="currency" name="currency" class="form-control"  onchange="selectCurrency()" >
+                                        <option th:each="currency ,currencyStat:${currencyList}" th:value="${currencyStat.index}" th:text="${currency.currencyName}"
+                                                th:attr ="selected=${currencyStat.index==0?true:false}"></option>
+                                    </select>
+                                </div>
+
+                                <div class="col-sm-2 m-b-xs">
+                                    <a  onclick="return myclick();"  class="btn btn-primary btn-block" >&nbsp;&nbsp;&nbsp;&nbsp;<strong>导出到Excel</strong></a>
+                                </div>
+
+                                <div width="100px">
+                                    <b class="form-control" >例如：（美元 / 人民币   =  7.01） -----    1美元 兑换 7.01人民币</b>
+                                </div>
+
+
+
+<!--                                <div class="col-sm-2 m-b-xs">-->
+<!--                                    <a th:href="@{'downloadToExcel'}" onclick="return myclick();" class="btn btn-primary btn-block" ><strong>导出到Excel</strong></a>-->
+<!--                                </div>-->
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>汇率对换</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+
+
+                        </div>
+                        <div class="ibox-content">
+
+                            <div class="table-responsive">
+                                <table class=" table table-hover" data-page-size="10">
+                                    <thead>
+                                    <tr >
+                                        <th id="currencyTitle" width="30%">人民币币汇率中间价</th>
+                                        <th width="30%">汇率</th>
+                                        <th ></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="currencyTbody">
+                                    <tr th:each="currency : ${currencyList}">
+                                        <td th:text="${currency.currencyName}+' / 人民币' ">xx币/xx币</td>
+                                        <td th:text="${currency.rate}">汇率xxx</td>
+                                        <td></td>
+                                    </tr>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <td colspan="7">
+                                            <ul id="pageHTML" class="pagination pull-right"></ul>
+                                        </td>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer" th:include="footer :: copyright"></div>
+    </div>
+</div>
+
+<!-- Mainly scripts -->
+<script th:src="@{/js/jquery-2.1.1.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/plugins/metisMenu/jquery.metisMenu.js}"></script>
+<script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+<!-- Peity -->
+<script th:src="@{/js/plugins/peity/jquery.peity.min.js}"></script>
+<!-- Custom and plugin javascript -->
+<script th:src="@{/js/inspinia.js}"></script>
+<script th:src="@{/js/plugins/pace/pace.min.js}"></script>
+<!-- iCheck -->
+<script th:src="@{/js/plugins/iCheck/icheck.min.js}"></script>
+<!-- Peity -->
+<script th:src="@{/js/demo/peity-demo.js}"></script>
+<!-- FooTable -->
+<script th:src="@{/js/plugins/footable/footable.all.min.js}"></script>
+<!-- common -->
+<script th:src="@{/js/common.js}"></script>
+
+<script type="text/javascript">
+    function myclick(){
+        var i = document.getElementById("currency").value;
+
+        window.location.href="/echarts/downloadToExcel?currencyIndex="+i;
+
+        // if(i==0){
+        //     alert('数据为0条，请查询一些数据把');
+        //     return false;
+        // }
+        return true;
+    }
+</script>
+
+<script type="text/javascript">
+    function selectCurrency(){
+        // 获取选中的值:货币名
+        var currency = document.getElementById("currency").value;
+
+        $.ajax({
+            type:"GET",
+            url:"../echarts/selectCurrency?currency="+currency,
+            dataType:"json",
+            async:false,
+            success:function (result) {
+                $("#currencyTbody").empty();         //清空所有option
+                var currencyTitle = document.getElementById("currencyTitle");
+                currencyTitle.innerHTML = result[currency].currencyName+"汇率中间价";
+
+                var t=document.getElementById("currencyTbody") ;
+                for (var i = 0; i < result.length; i++) {
+                    var tr=document.createElement("tr");
+
+                    var td1=document.createElement("td");
+                    var td2=document.createElement("td");
+                    var td3=document.createElement("td");
+                    td1.innerHTML=result[i].currencyName+" / "+result[currency].currencyName;
+                    td2.innerHTML=result[i].rate;
+                    td3.innerHTML="";
+                    tr.appendChild(td1);
+                    tr.appendChild(td2);
+                    tr.appendChild(td3);
+                    t.appendChild(tr);
+                }
+            },
+            error :function(errorMsg) {
+                alert("获取后台数据失败！");
+            }
+        });
+
+        //给4个框赋值
+        document.getElementById("incomeTh").innerHTML =  incomeTh;
+        document.getElementById("costTh").innerHTML = costTh;
+        document.getElementById("profitTh").innerHTML = profitTh;
+
+
+    }
+</script>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+    // 获取选中的值
+    var status = document.getElementById("checkStatus").value;
+    $("select option[value="+status+"]").attr("selected", true);
+</script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var pageHTML = [[${pageHTML}]];
+    $(document).ready(function () {
+        $("#pageHTML").html(pageHTML);
+
+    });
+
+</script>
+
+
+
+
+</body>
+
+</html>

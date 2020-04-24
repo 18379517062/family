@@ -30,14 +30,18 @@ public interface itemMapper {
                            @Param("endTime") Date endTime
                           );
 
+    //查询某年的数据
+    List<item> findItemByYear(@Param("userId")int userId,
+                              @Param("year") int year);
+
+    //查询某年某收支类型的数据
+    List<item> findItemByStatusAndYear(@Param("userId")int userId,
+                                       @Param("status")String status,
+                                       @Param("year") int year);
+
+
     //删除类别
     void deleteItem(item item);
 
-    int insertSelective(item record);
 
-    item selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(item record);
-
-    int updateByPrimaryKey(item record);
 }

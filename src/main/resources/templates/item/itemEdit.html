@@ -28,19 +28,18 @@
 <div id="wrapper">
     <nav class="navbar-default navbar-static-side" role="navigation" th:include="nav :: navigation"></nav>
     <div id="page-wrapper" class="gray-bg">
-        <div class="border-bottom" th:include="header :: headerTop"></div>
         <div class="row wrapper border-bottom white-bg page-heading" th:fragment="headerNav">
             <div class="col-lg-10">
-                <h2>收支管理</h2>
+                <h2>新增收支</h2>
                 <ol class="breadcrumb">
                     <li>
                         <a href="#">首页</a>
                     </li>
                     <li>
-                        <a>收支管理</a>
+                        <a th:href="@{itemManagePage}">收支管理</a>
                     </li>
                     <li class="active">
-                        <strong>收支新增或修改</strong>
+                        <strong>新增收支</strong>
                     </li>
                 </ol>
             </div>
@@ -131,7 +130,7 @@
 
                                 <div class="form-group"><label class="col-sm-2 control-label">地点：</label>
                                     <div class="col-sm-10">
-                                        <input id="place" name="place" type="text" th:rows="1"  class="form-control"   th:text="无"></input>
+                                        <input id="place" name="place" type="text" th:rows="1"  class="form-control"   ></input>
                                     </div>
                                 </div>
 
@@ -139,7 +138,7 @@
 
                                 <div class="form-group"><label class="col-sm-2 control-label">备注：</label>
                                     <div class="col-sm-10">
-                                        <input id="comment" name="comment" type="text" th:rows="2"  class="form-control"   th:text="无"></input>
+                                        <input id="comment" name="comment" type="text" th:rows="2"  class="form-control"  ></input>
                                     </div>
                                 </div>
 

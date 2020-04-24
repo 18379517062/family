@@ -6,24 +6,23 @@ import com.family.service.accountService;
 import com.family.service.categoryService;
 import com.family.service.currencyService;
 import com.family.service.itemService;
+import com.family.util.ExcelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.ui.Model;
-import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequestMapping(value = {"/item"})
 @Controller
@@ -37,6 +36,8 @@ public class itemController {
     private accountService accountService;
     @Autowired
     private categoryService categoryService;
+
+    private List<item> itemList;
 
 
     //进入记录新增页面
@@ -111,8 +112,13 @@ public class itemController {
         int userId = ((user) request.getSession().getAttribute("session_user")).getId();
         item.setUserId(userId);
 
-        List<item> list = itemService.findAllItem(item);
-        model.addAttribute("item", list);
+//        item.setUser((user) request.getSession().getAttribute("session_user"));
+
+
+        itemList = itemService.findAllItem(item);
+        model.addAttribute("item", itemList);
+        model.addAttribute("itemCount", itemList.size());   //记录数
+
         return "/item/itemManage";
     }
 
@@ -140,7 +146,7 @@ public class itemController {
         }
         return JSON.toJSONString(returnMap);
     }
-
+    //更加条件查询收支记录
     @RequestMapping(value = "/searchItem")
     public String searchItem(Model model, HttpServletRequest request,
                              @RequestParam("status") String status,
@@ -171,9 +177,10 @@ public class itemController {
         else
             eTime =  format1.parse(endTime);
 
-        List<item> list =  itemService.searchItem(title,status,userId,cid,sTime,eTime);
-
-        model.addAttribute("item", list);
+        itemList =  itemService.searchItem(title,status,userId,cid,sTime,eTime);
+//        itemList = itemService.searchItem(title,status,userId,cid,sTime,eTime);
+        model.addAttribute("item", itemList);
+        model.addAttribute("itemCount", itemList.size());   //记录数
         return "/item/itemManage";
 
     }
@@ -185,7 +192,38 @@ public class itemController {
         itemService.deleteItem(item);
     }
 
+    @RequestMapping("/downloadToExcel")
+    public void postItemExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
+        //导出excel
+        LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
+        fieldMap.put("id", "商品id");
+        fieldMap.put("title", "商品标题");
+        fieldMap.put("userId", "用户名");
+        fieldMap.put("status", "记录类型");
+        fieldMap.put("category.categoryName", "类别");
+        fieldMap.put("account.accountName", "账户名称");
+        fieldMap.put("money", "金额");
+        fieldMap.put("currencyName", "币种");
+        fieldMap.put("createTime", "创建时间");
+        fieldMap.put("place", "地点");
+        fieldMap.put("comment", "备注");
+
+        int sum = itemList.size();  //记录数
+
+        long currentTime=System.currentTimeMillis(); //获取当前时间时间戳
+        String sheetName = "商品管理报表";
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-disposition", "attachment;filename="+currentTime+".xls");//默认Excel名称
+        response.flushBuffer();
+        OutputStream fos = response.getOutputStream();
+        try {
+            ExcelUtil.listToExcel(itemList, fieldMap, sheetName, sum,fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
 
 }

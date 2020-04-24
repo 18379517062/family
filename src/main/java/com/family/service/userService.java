@@ -10,23 +10,23 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class userLoginService {
+public class userService {
 
     @Autowired
     private userMapper usermapper;
 
     //用户登录
-    public user userLogin(String userName,String password){
-        return usermapper.userLogin(userName,password);
+    public user userLogin(user user){
+        return usermapper.userLogin(user);
     }
 
     //注册新用户
     public int addUser(String userName,String password,String sex ,Date createTime) {
-        return usermapper.addUser(userName, password,(sex.equals("男")?true:false),createTime);
+        return usermapper.addUser(userName, password,sex,createTime);
     }
 
     //修改用户信息
-    public int modifyUser(String id,
+    public int modifyUser(int id,
                           String userName,
                           String password,
                           String realName,
@@ -36,14 +36,19 @@ public class userLoginService {
                           Date birthday,
                           Date updateTime
                           ){
-        return usermapper.modifyUser(Integer.parseInt(id),userName,password,realName,(sex.equals("男")?true:false),phone,email,
+        return usermapper.modifyUser(id,userName,password,realName,sex,phone,email,
                 birthday,updateTime);
     }
 
 
-    //查找用户是否存在
-    public String selectIsName(String userName){
-        return usermapper.selectIsName(userName);
+    //查找用户是否存在 by userName
+    public String findUserByName(String userName){
+        return usermapper.findUserByName(userName);
+    }
+
+    //查找用户是否存在 by Id
+    public user findUserById(user user){
+        return usermapper.findUserById(user);
     }
 
     //查询用户列表

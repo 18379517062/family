@@ -13,10 +13,10 @@ import java.util.Map;
 public interface userMapper {
 
     //用户登录
-    user userLogin(@Param("userName") String userName, @Param("password") String password);
+    user userLogin(user user);
 
     //注册新用户(
-    int addUser(@Param("userName") String userName, @Param("password") String password,@Param("sex") boolean sex,@Param("createTime") Date createTime
+    int addUser(@Param("userName") String userName, @Param("password") String password,@Param("sex") String sex,@Param("createTime") Date createTime
                );
 
     //用户信息更新
@@ -24,29 +24,20 @@ public interface userMapper {
                    @Param("userName")String userName,
                    @Param("password") String password,
                    @Param("realName") String realName,
-                   @Param("sex") boolean sex,
+                   @Param("sex") String sex,
                    @Param("phone") String phone,
                    @Param("email") String email,
                    @Param("birthday") Date birthday,
                    @Param("updateTime") Date updateTime);
 
-    //查找用户是否存在
-    String selectIsName(@Param("userName") String userName);
+    //查找用户是否存在 by userName
+    String findUserByName(@Param("userName") String userName);
 
+    //查找用户是否存在 by Id
+    user findUserById(user user);
 
     //查询用户列表
     List<Map<String,Object>> queryAllUser();
 
 
-    int deleteByPrimaryKey(Integer id);
-
-    int insert(user record);
-
-    int insertSelective(user record);
-
-    user selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(user record);
-
-    int updateByPrimaryKey(user record);
 }

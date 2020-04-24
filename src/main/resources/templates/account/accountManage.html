@@ -27,20 +27,19 @@
     <div id="wrapper">
 		<nav class="navbar-default navbar-static-side" role="navigation" th:include="nav :: navigation"></nav>
 		<div id="page-wrapper" class="gray-bg">
-        	<div class="border-bottom" th:include="header :: headerTop"></div>
       		<div class="row wrapper border-bottom white-bg page-heading" th:fragment="headerNav">
 		   		<div class="col-lg-10">
-		     		<h2>账户信息</h2>
+		     		<h2>账户管理</h2>
 		          	<ol class="breadcrumb">
 			            <li>
 			            	<a href="#">首页</a>
 			            </li>
-<!--			            <li>-->
-<!--			            	<a>账户管理</a>-->
-<!--			         	</li>-->
 			          	<li class="active">
 			             	<strong>账户管理</strong>
 			          	</li>
+						<li>
+							<a th:href="@{accountEditPage}">新增账户</a>
+						</li>
 					</ol>
 		      	</div>
 		      	<div class="col-lg-2">
@@ -83,10 +82,6 @@
 	                    <div class="ibox float-e-margins">
 	                        <div class="ibox-title">
 	                            <h5>账户列表</h5>
-								<button  class="btn btn-primary" type="button" >
-									<a th:href="@{accountManagePage}" >&nbsp;&nbsp;&nbsp;&nbsp;返&nbsp;&nbsp;&nbsp;&nbsp;回&nbsp;&nbsp;&nbsp;&nbsp;</a>
-								</button>
-
 								<div class="ibox-tools">
 	                                <a class="collapse-link">
 	                                    <i class="fa fa-chevron-up"></i>

@@ -13,27 +13,23 @@
     <result column="createTime" jdbcType="DATE" property="createTime" />
     <result column="place" jdbcType="VARCHAR" property="place" />
     <result column="comment" jdbcType="VARCHAR" property="comment" />
-<!--    <result column="user" jdbcType="com.family.entity.user" property="user" />-->
-<!--    <result column="account" jdbcType="com.family.entity.account" property="account" />-->
-<!--&lt;!&ndash;    <result column="category" jdbcType="com.family.entity.category" property="category" />&ndash;&gt;-->
-
-<!--    <association property="user" javaType="com.family.entity.user" column="userId">-->
-<!--      <id property="id" column="uId"></id>-->
-<!--      <result property="userName" column="userName"></result>-->
-<!--    </association>-->
+<!--      <association property="user" javaType="com.family.entity.user" column="userId">-->
+<!--          <id property="id" column="userId"></id>-->
+<!--          <result property="userName" column="userName"></result>-->
+<!--      </association>-->
     <association property="category" javaType="com.family.entity.category" column="categoryId">
-      <id property="id" column="categoryId"></id>
-      <result property="categoryName" column="categoryName"></result>
+        <id property="id" column="categoryId"></id>
+        <result property="categoryName" column="categoryName"></result>
         <result property="status" column="status"></result>
     </association>
     <association property="account" javaType="com.family.entity.account" column="accountId">
-      <id property="id" column="accountId"></id>
+        <id property="id" column="accountId"></id>
         <result property="userId" column="userId"></result>
-      <result property="accountName" column="accountName"></result>
-      <result property="accountMoney" column="accountMoney"></result>
-
+        <result property="accountName" column="accountName"></result>
+        <result property="accountMoney" column="accountMoney"></result>
     </association>
   </resultMap>
+
   <sql id="Base_Column_List">
     id, status,title, userId, categoryId, money, currencyName, accountId, createTime, place, comment
   </sql>
@@ -47,7 +43,7 @@
 
 <!--  直接查找所有收支记录-->
   <select id="findAllItem" resultMap="BaseResultMap">
-        select  i.*,a.accountName,c.categoryName
+        select  i.*,a.*,c.*
         from item i,account a,category c
         where i.userId = #{userId} and i.accountId = a.id and i.categoryId = c.id  order by i.createTime DESC ,i.id DESC ;
     </select>
@@ -60,7 +56,7 @@
 
 <!--    根据查询条件查找-->
     <select id="searchItem" resultMap="BaseResultMap">
-         select  i.*,a.accountName,c.categoryName
+         select  i.*,a.*,c.*
         from item i,account a,category c
         where i.userId = #{userId} and
          (i.createTime between #{startTime} and #{endTime}) and
@@ -69,6 +65,28 @@
          (i.categoryId = #{categoryId} or #{categoryId} = -1)  and
          i.accountId = a.id and i.categoryId = c.id  order by i.createTime DESC ,i.id DESC ;
     </select>
+
+
+    <!-- 查询某年的数据所有数据-->
+    <select id="findItemByYear" resultMap="BaseResultMap">
+         select  i.*,a.*,c.*
+        from item i,account a,category c
+        where i.userId = #{userId} and
+              year(i.createTime) = #{year} and
+              i.accountId = a.id and i.categoryId = c.id  order by i.createTime DESC ,i.id DESC ;
+    </select>
+
+<!--    查询某年某收支类型的数据-->
+    <select id="findItemByStatusAndYear" resultMap="BaseResultMap">
+         select  i.*,a.*,c.*
+        from item i,account a,category c
+        where i.userId = #{userId} and
+              i.status = #{status} and
+              year(i.createTime) = #{year} and
+              i.accountId = a.id and i.categoryId = c.id  order by i.createTime DESC ,i.id DESC ;
+    </select>
+
+
 
     <!--  删除记录-->
     <delete id="deleteItem" parameterType="java.lang.Integer">

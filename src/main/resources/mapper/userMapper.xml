@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.family.mapper.userMapper">
-  <resultMap id="BaseResultMap" type="com.family.entity.user">
-    <id column="id" jdbcType="INTEGER" property="id" />
-    <result column="userName" jdbcType="VARCHAR" property="userName" />
-    <result column="password" jdbcType="VARCHAR" property="password" />
-    <result column="updateTime" jdbcType="DATE" property="updateTime" />
-    <result column="createTime" jdbcType="DATE" property="createTime" />
-    <result column="birthday" jdbcType="DATE" property="birthday" />
-    <result column="headPicture" jdbcType="VARCHAR" property="headPicture" />
-    <result column="phone" jdbcType="VARCHAR" property="phone" />
-    <result column="sex" jdbcType="BIT" property="sex" />
-    <result column="email" jdbcType="VARCHAR" property="email" />
-    <result column="realName" jdbcType="VARCHAR" property="realName" />
-  </resultMap>
+<!--  <resultMap id="BaseResultMap" type="com.family.entity.user">-->
+<!--    <id column="id" jdbcType="INTEGER" property="id" />-->
+<!--    <result column="userName" jdbcType="VARCHAR" property="userName" />-->
+<!--    <result column="password" jdbcType="VARCHAR" property="password" />-->
+<!--    <result column="updateTime" jdbcType="DATE" property="updateTime" />-->
+<!--    <result column="createTime" jdbcType="DATE" property="createTime" />-->
+<!--    <result column="birthday" jdbcType="DATE" property="birthday" />-->
+<!--    <result column="headPicture" jdbcType="VARCHAR" property="headPicture" />-->
+<!--    <result column="phone" jdbcType="VARCHAR" property="phone" />-->
+<!--    <result column="sex" jdbcType="BIT" property="sex" />-->
+<!--    <result column="email" jdbcType="VARCHAR" property="email" />-->
+<!--    <result column="realName" jdbcType="VARCHAR" property="realName" />-->
+<!--  </resultMap>-->
   <sql id="Base_Column_List">
     id, userName, password,  realName, sex, phone,email , birthday, createTime, updateTime, headPicture
   </sql>
@@ -27,9 +27,16 @@
         WHERE userName = #{userName} AND password = #{password}
     </select>
 
-    <!--查找用户是否存在-->
-    <select id="selectIsName" parameterType="java.lang.String" resultType="java.lang.String">
+    <!--查找用户by userName-->
+    <select id="findUserByName" parameterType="java.lang.String" resultType="java.lang.String">
         SELECT userName from user  where userName = #{userName, jdbcType=VARCHAR}
+    </select>
+
+    <!--查找用户by id-->
+    <select id="findUserById" parameterType="user" resultType="com.family.entity.user">
+        SELECT
+        <include refid="Base_Column_List" />
+        from user  where id = #{id}
     </select>
 
     <!--新用户注册  方式1-->
@@ -50,153 +57,6 @@
           updateTime = #{updateTime}
     where id = #{id,jdbcType=INTEGER}
     </update>
-
-
-
-
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from user
-    where id = #{id,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from user
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
-  <insert id="insert" parameterType="com.family.entity.user">
-    insert into user (id, userName, password,
-      updateTime, createTime, birthday,
-      headPicture, phone, sex,
-      email, realName)
-    values (#{id,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
-      #{updateTime,jdbcType=DATE}, #{createTime,jdbcType=DATE}, #{birthday,jdbcType=DATE},
-      #{headPicture,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{sex,jdbcType=BIT},
-      #{email,jdbcType=VARCHAR}, #{realName,jdbcType=VARCHAR})
-  </insert>
-  <insert id="insertSelective" parameterType="com.family.entity.user">
-    insert into user
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
-      <if test="userName != null">
-        userName,
-      </if>
-      <if test="password != null">
-        password,
-      </if>
-      <if test="updateTime != null">
-        updateTime,
-      </if>
-      <if test="createTime != null">
-        createTime,
-      </if>
-      <if test="birthday != null">
-        birthday,
-      </if>
-      <if test="headPicture != null">
-        headPicture,
-      </if>
-      <if test="phone != null">
-        phone,
-      </if>
-      <if test="sex != null">
-        sex,
-      </if>
-      <if test="email != null">
-        email,
-      </if>
-      <if test="realName != null">
-        realName,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=INTEGER},
-      </if>
-      <if test="userName != null">
-        #{userName,jdbcType=VARCHAR},
-      </if>
-      <if test="password != null">
-        #{password,jdbcType=VARCHAR},
-      </if>
-      <if test="updateTime != null">
-        #{updateTime,jdbcType=DATE},
-      </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=DATE},
-      </if>
-      <if test="birthday != null">
-        #{birthday,jdbcType=DATE},
-      </if>
-      <if test="headPicture != null">
-        #{headPicture,jdbcType=VARCHAR},
-      </if>
-      <if test="phone != null">
-        #{phone,jdbcType=VARCHAR},
-      </if>
-      <if test="sex != null">
-        #{sex,jdbcType=BIT},
-      </if>
-      <if test="email != null">
-        #{email,jdbcType=VARCHAR},
-      </if>
-      <if test="realName != null">
-        #{realName,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.family.entity.user">
-    update user
-    <set>
-      <if test="userName != null">
-        userName = #{userName,jdbcType=VARCHAR},
-      </if>
-      <if test="password != null">
-        password = #{password,jdbcType=VARCHAR},
-      </if>
-      <if test="updateTime != null">
-        updateTime = #{updateTime,jdbcType=DATE},
-      </if>
-      <if test="createTime != null">
-        createTime = #{createTime,jdbcType=DATE},
-      </if>
-      <if test="birthday != null">
-        birthday = #{birthday,jdbcType=DATE},
-      </if>
-      <if test="headPicture != null">
-        headPicture = #{headPicture,jdbcType=VARCHAR},
-      </if>
-      <if test="phone != null">
-        phone = #{phone,jdbcType=VARCHAR},
-      </if>
-      <if test="sex != null">
-        sex = #{sex,jdbcType=BIT},
-      </if>
-      <if test="email != null">
-        email = #{email,jdbcType=VARCHAR},
-      </if>
-      <if test="realName != null">
-        realName = #{realName,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.family.entity.user">
-    update user
-    set userName = #{userName,jdbcType=VARCHAR},
-      password = #{password,jdbcType=VARCHAR},
-      updateTime = #{updateTime,jdbcType=DATE},
-      createTime = #{createTime,jdbcType=DATE},
-      birthday = #{birthday,jdbcType=DATE},
-      headPicture = #{headPicture,jdbcType=VARCHAR},
-      phone = #{phone,jdbcType=VARCHAR},
-      sex = #{sex,jdbcType=BIT},
-      email = #{email,jdbcType=VARCHAR},
-      realName = #{realName,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
-  </update>
 
 
 

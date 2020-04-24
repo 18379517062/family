@@ -49,8 +49,6 @@ public class accountController {
     }
 
 
-
-
     //账户新增界面
     @RequestMapping(value = {"/accountEditPage"})
     public String accountEditPage(Model model){
@@ -79,8 +77,5 @@ public class accountController {
             }
         }
     }
-
-
-
 
 }

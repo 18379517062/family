@@ -50,7 +50,6 @@ public class currencyInsert {
                 }
             }
 
-
         } catch (Exception e) {
             logger.error("更新失败，失败原因：" + e.getMessage());
         }

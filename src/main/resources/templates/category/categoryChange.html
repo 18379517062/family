@@ -28,7 +28,6 @@
     <div id="wrapper">
 		<nav class="navbar-default navbar-static-side" role="navigation" th:include="nav :: navigation"></nav>
 		<div id="page-wrapper" class="gray-bg">
-        	<div class="border-bottom" th:include="header :: headerTop"></div>
       		<div class="row wrapper border-bottom white-bg page-heading" th:fragment="headerNav">
 		   		<div class="col-lg-10">
 		     		<h2>类别管理</h2>
@@ -63,7 +62,7 @@
                         </div>
                         <div class="ibox-content">
                             <form id="formTag" action="/category/categoryChange" method="POST" class="form-horizontal" enctype="multipart/form-data">
-                            	<input  name="id" th:value="${newCategory.id}" readonly="readonly"/>
+<!--                            	<input  name="id" th:value="${newCategory.id}" readonly="readonly"/>-->
 
                                 <div class="form-group"><label class="col-sm-2 control-label">类别属性：</label>
                                     <div class="col-sm-10">

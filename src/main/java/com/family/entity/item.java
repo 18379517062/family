@@ -26,17 +26,17 @@ public class item {
     private String comment;
 
     //多表联合查询
-//    private user user;
+    private user user;
     private account account;
     private category category;
 
-//    public user getUser() {
-//        return user;
-//    }
+    public user getUser() {
+        return user;
+    }
 
-//    public void setUser(user user) {
-//        this.user = user;
-//    }
+    public void setUser(user user) {
+        this.user = user;
+    }
 
     public account getAccount() {
         return account;
@@ -54,6 +54,8 @@ public class item {
     public void setCategory(category category) {
         this.category = category;
     }
+
+
 
     public Integer getId() {
         return id;

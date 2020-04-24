@@ -38,9 +38,21 @@ public class itemService {
         return itemmapper.searchItem(title,status,userId,categoryId,startTime,endTime);
     }
 
+    //查询某年的数据
+    public List<item> findItemByYear(int userId,int year){
+        return itemmapper.findItemByYear(userId,year);
+    }
+
+    //查询某年某收支类型的数据
+    public List<item> findItemByStatusAndYear(int userId,String status,int year){
+        return itemmapper.findItemByStatusAndYear(userId,status,year);
+    }
 
     //删除回路
     public void deleteItem(item item){
         itemmapper.deleteItem(item);
     }
+
+
+
 }

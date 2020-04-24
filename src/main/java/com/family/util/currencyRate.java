@@ -55,7 +55,7 @@ public class currencyRate {
                 if(eRate!=null){ //防止空数据集
                     name = rJson.getString("name");
                     //保留6位有效数字
-                    DecimalFormat df = new DecimalFormat("#.000000");
+                    DecimalFormat df = new DecimalFormat("#.0000");
                     eRate = Double.parseDouble(df.format(eRate/100.0));
                     map.put(name,eRate);
                 }
