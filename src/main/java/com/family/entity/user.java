@@ -27,6 +27,10 @@ public class user {
 
     public user(){}
 
+    public user(Integer id) {
+        this.id = id;
+    }
+
     public user(Integer id, String userName) {
         this.id = id;
         this.userName = userName;

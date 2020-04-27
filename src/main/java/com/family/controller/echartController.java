@@ -40,6 +40,9 @@ public class echartController {
         ArrayList<Integer> yearList = new ArrayList<>();  //年份数组
         yearList = getYear(request);  //获取所有记录的年份
         model.addAttribute("yearList",yearList);
+
+        currencyList = currencyService.findCurrency();   //获取所有汇率
+        model.addAttribute("currencyList",currencyList);
         return "/echarts/echartsYear";
     }
 
@@ -49,6 +52,9 @@ public class echartController {
         ArrayList<Integer> yearList = new ArrayList<>();  //年份数组
         yearList = getYear(request);
         model.addAttribute("yearList",yearList);
+
+        currencyList = currencyService.findCurrency();   //获取所有汇率
+        model.addAttribute("currencyList",currencyList);
         return "/echarts/echartsMonth";
     }
 
@@ -58,6 +64,9 @@ public class echartController {
         ArrayList<Integer> yearList = new ArrayList<>();  //年份数组
         yearList = getYear(request);
         model.addAttribute("yearList",yearList);
+
+        currencyList = currencyService.findCurrency();   //获取所有汇率
+        model.addAttribute("currencyList",currencyList);
         return "/echarts/echartsDay";
     }
 
@@ -74,24 +83,12 @@ public class echartController {
     @RequestMapping("/echartsCurrencyPage")
     public String echartsCurrencyPage(HttpServletRequest request,Model model){
         currencyList = currencyService.findCurrency();   //获取所有汇率
-
         model.addAttribute("currencyList",currencyList);
         return "/echarts/echartsCurrency";
     }
 
 
-
-//    @RequestMapping("/income")
-//    @ResponseBody
-//    public List<item> income(HttpServletRequest request,item item){
-//        if(item.getStatus() == null)
-//            item.setStatus("1");
-//        int userId = ((user) request.getSession().getAttribute("session_user")).getId();
-//        item.setUserId(userId);
-//        List<item> itemList = itemService.findItemByStatus(item); //收入
-//        return itemList;
-//    }
-
+    //
     @RequestMapping("/echartsYear")
     @ResponseBody
     public List<item> echartsYear(HttpServletRequest request){
@@ -105,9 +102,40 @@ public class echartController {
     //年度报表，只要筛查年份
     @RequestMapping("/selectYear")
     @ResponseBody
-    public List<item> selectYear(HttpServletRequest request, Model model ,@RequestParam("year") String year) throws ParseException {
+    public List<item> selectYear(HttpServletRequest request, Model model ,
+                                 @RequestParam("year") String year,
+                                 @RequestParam("currency") String currency) throws ParseException {
         int userId = ((user) request.getSession().getAttribute("session_user")).getId();
         List<item> itemList = itemService.findItemByYear(userId,Integer.parseInt(year));
+
+
+
+        /**
+         * 转换成美元，而有 100欧元 ，转换如下
+         * 1、获取 美元/人民币的汇率 = 7.01 ，欧元/人民币的汇率 = 7.41
+         * 2、用 7.41去除 7.01 得到 欧元/美元的汇率 = 1.05
+         * 3、使用 100*1.05 = 105 ，就是100欧元转换成美元的钱 =105美元
+         */
+        //对获取的数据进行统一币种化
+        int index = Integer.parseInt(currency);
+        List<currency> currencyList = currencyService.findCurrency();   //获取所有汇率
+        LinkedHashMap<String,Double> map = new LinkedHashMap<>();   //map(currencyName:id)
+
+        for(int i=0;i<currencyList.size();i++) {
+            map.put(currencyList.get(i).getCurrencyName() , currencyList.get(i).getRate());
+        }
+        String name = currencyList.get(index).getCurrencyName();       //要转换成的比重
+        double rate = currencyList.get(index).getRate();  //获取下拉框选中的货币的 汇率（对人民币）：美/人 = 7.01
+        DecimalFormat df = new DecimalFormat("#.0000"); //保留4位有效数字
+
+        for(int i=0;i<itemList.size();i++){
+            double itemRate = map.get(itemList.get(i).getCurrencyName());  //获取当前
+            double v =itemRate/ rate;
+            double changeMoney =  Double.parseDouble(df.format(itemList.get(i).getMoney() *  v )) ;
+            itemList.get(i).setMoney(changeMoney);
+            itemList.get(i).setCurrencyName(name);
+        }
+
         return itemList;
     }
 
@@ -116,10 +144,36 @@ public class echartController {
     @ResponseBody
     public List<item> selectStatusAndYear(HttpServletRequest request, Model model ,
                                           @RequestParam("status") String status,
-                                          @RequestParam("year") String year
-                                          ) throws ParseException {
+                                          @RequestParam("year") String year,
+                                          @RequestParam("currency") String currency) throws ParseException {
         int userId = ((user) request.getSession().getAttribute("session_user")).getId();
         List<item> itemList = itemService.findItemByStatusAndYear(userId,status,Integer.parseInt(year));
+
+        /**
+         * 转换成美元，而有 100欧元 ，转换如下
+         * 1、获取 美元/人民币的汇率 = 7.01 ，欧元/人民币的汇率 = 7.41
+         * 2、用 7.41去除 7.01 得到 欧元/美元的汇率 = 1.05
+         * 3、使用 100*1.05 = 105 ，就是100欧元转换成美元的钱 =105美元
+         */
+        //对获取的数据进行统一币种化
+        int index = Integer.parseInt(currency);
+        List<currency> currencyList = currencyService.findCurrency();   //获取所有汇率
+        LinkedHashMap<String,Double> map = new LinkedHashMap<>();   //map(currencyName:id)
+
+        for(int i=0;i<currencyList.size();i++) {
+            map.put(currencyList.get(i).getCurrencyName() , currencyList.get(i).getRate());
+        }
+        String name = currencyList.get(index).getCurrencyName();       //要转换成的比重
+        double rate = currencyList.get(index).getRate();  //获取下拉框选中的货币的 汇率（对人民币）：美/人 = 7.01
+        DecimalFormat df = new DecimalFormat("#.0000"); //保留4位有效数字
+
+        for(int i=0;i<itemList.size();i++){
+            double itemRate = map.get(itemList.get(i).getCurrencyName());  //获取当前
+            double v =itemRate/ rate;
+            double changeMoney =  Double.parseDouble(df.format(itemList.get(i).getMoney() *  v )) ;
+            itemList.get(i).setMoney(changeMoney);
+            itemList.get(i).setCurrencyName(name);
+        }
 
         return itemList;
     }
@@ -143,7 +197,7 @@ public class echartController {
     }
 
 
-
+    //下载到Excel
     @RequestMapping("/downloadToExcel")
     public void postCurrencyExcel(HttpServletRequest request, HttpServletResponse response,
                                   @RequestParam("currencyIndex") String currencyIndex) throws IOException {

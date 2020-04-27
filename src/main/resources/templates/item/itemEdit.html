@@ -23,7 +23,7 @@
     <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet"/>
 </head>
 
-<body>
+<body onload="selectState()">
 
 <div id="wrapper">
     <nav class="navbar-default navbar-static-side" role="navigation" th:include="nav :: navigation"></nav>
@@ -82,9 +82,7 @@
                                 <div class="form-group"><label class="col-sm-2 control-label">类别：</label>
                                     <div class="col-sm-10">
                                         <select name="categoryId" id="categoryId" class="form-control" >
-                                            <option value="0">--请选择分类--</option>
-<!--                                            <option th:each="category : ${category}" th:value="${category.id}" th:text="${category.categoryName}" >分类</option>-->
-                                        </select>
+                                         </select>
                                     </div>
                                 </div>
                                 <div class="hr-line-dashed"></div>
@@ -93,7 +91,7 @@
 
                                 <div class="form-group"><label class="col-sm-2 control-label">金额：</label>
                                     <div class="col-sm-10">
-                                        <input id="money" name="money" type="number" th:min="0" th:max="900000000" step="0.01" class="form-control"   placeholder="0.0"></input>
+                                        <input id="money" name="money" type="number" th:min="0" th:max="900000000" step="0.01" class="form-control"  th:value="0.0" placeholder="0.0"></input>
                                     </div>
                                 </div>
 
@@ -168,6 +166,8 @@
 <script th:src="@{/js/plugins/metisMenu/jquery.metisMenu.js}"></script>
 <script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
 
+<!-- iCheck -->
+<script th:src="@{/js/plugins/iCheck/icheck.min.js}"></script>
 <!-- Peity -->
 <script th:src="@{/js/plugins/peity/jquery.peity.min.js}"></script>
 
@@ -187,28 +187,28 @@
 <!-- Sweet alert -->
 <script th:src="@{/js/plugins/sweetalert/sweetalert.min.js}"></script>
 
-<script type="text/javascript" th:src="@{/statusAjax.js}"></script>
 
 
 
 <script type="text/javascript">
     function selectState(){
         // 获取选中的值
-        var objS = document.getElementById("status");
-        var status = objS.options[objS.selectedIndex].value;
+        var status = document.getElementById("status").value;
         $.ajax({
             type : "post",
-            url :"selectState",
-            data : {"status":status},
+            url :"selectState?status="+status,
             dataType : 'json',
-            success : function(data) {
-                // alert(data.returnMsg);
-                var list = data.categoryList;
+            async:false,
+            success : function(result) {
                 $("#categoryId").empty();         //清空所有option
-                $("#categoryId").append("<option value= ''>"+"--请选择--"+"</option>")
-                for (var i = 0; i < list.length; i++) {
-                    $("#categoryId").append("<option value= "+list[i].id+">"+list[i].categoryName+"</option>")
+                // $("#categoryId").append("<option value="+-1+" selected='selected'>--全选--</option>")
+                for(var i =0 ;i<result.length;i++){
+                    if(i==0)   //第一个默认选中
+                        $("#categoryId").append("<option value= '"+result[i].id+"' selected='selected'>"+result[i].categoryName+"</option>");
+                    else
+                        $("#categoryId").append("<option value= "+result[i].id+">"+result[i].categoryName+"</option>");
                 }
+
             },error:function(){
                 alert("error");
             }

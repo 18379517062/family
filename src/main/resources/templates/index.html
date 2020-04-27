@@ -1,44 +1,107 @@
+
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <title>ECharts</title>
-    <script src="js/echarts.min.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>后台信息管理系统</title>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet" />
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+
+    <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet"/>
+    <link th:href="@{/css/plugins/footable/footable.core.css}" rel="stylesheet"/>
+    <!-- Sweet Alert -->
+    <link th:href="@{/css/plugins/sweetalert/sweetalert.css}" rel="stylesheet"/>
+    <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet"/>
+    <!-- Mainly scripts -->
+    <script th:src="@{/js/jquery-2.1.1.js}"></script>
+    <script th:src="@{/js/jquery-2.1.1.min.js}"></script>
+
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <!-- Sweet alert -->
+    <script th:src="@{/js/plugins/sweetalert/sweetalert.min.js}"></script>
+
+    <script type="text/javascript" th:src="@{/js/jquery.cookie.js}"></script>
 </head>
-<body>
-<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
-<div id="main" style="width: 1000px;height:600px;"></div>
-<!--<script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>-->
-<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
-<script src="https://cdn.bootcss.com/echarts/4.6.0/echarts.min.js"></script>
+<body onload="getCookie()" >
+<table>
+    <h3>用户名：<input type="text" id="userName" name="userName"></h3>
+    <h3>密码：<input type="password" id="passWord" name="passWord"></h3>
+    <input type="checkbox" name="rememenber" id="rememenber">：记住密码<br/>
+<!--    <a   onclick="tologin()">asas</a>-->
+    <a  onclick="return tologin();"  >&nbsp;&nbsp;&nbsp;&nbsp;<strong>导出到Excel</strong></a>
 
-
-
-<script type="text/javascript">
-    // 基于准备好的dom，初始化echarts实例
-    var myChart = echarts.init(document.getElementById('main'));
-
-    // 指定图表的配置项和数据
-    var option = {
-        title: {
-            text: 'ECharts 入门示例'
-        },
-        tooltip: {},
-        legend: {
-            data:['销量']
-        },
-        xAxis: {
-            data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
-        },
-        yAxis: {},
-        series: [{
-            name: '销量',
-            type: 'bar',
-            data: [5, 20, 36, 10, 10, 20]
-        }]
-    };
-
-    // 使用刚指定的配置项和数据显示图表。
-    myChart.setOption(option);
-</script>
+</table>
 </body>
+<script type="text/javascript">
+    //把信息设置进去Cookie里面去
+    function setCookie(){
+        var userName = $('#userName').val();
+        var passWord = $('#passWord').val();
+        var aa = $("input[type='checkbox']").is(":checked");//获取是否选中
+        if(aa==true){//如果选中-->记住密码登录
+            $.cookie("userName",userName.trim(),7);//有效时间7天，也可以设置为永久，把时间去掉就好
+            $.cookie("passWord",passWord.trim(),7);
+        }else{//如果没选中-->不记住密码登录
+            $.cookie("passWord", "");
+            $.cookie("userName", "");
+            alert("没有记住密码")
+        }
+    }
+
+
+    function getCookie(){ //获取cookie
+        alert(11);
+        var userName = $.cookie("userName"); //获取cookie中的用户名
+        var pwd =  $.cookie("passWord"); //获取cookie中的登陆密码
+        alert(userName+"1:"+pwd);
+        if(pwd){//密码存在的话把“记住用户名和密码”复选框勾选住
+            $("[name='rememenber']").attr("checked","true");
+        }
+        if(userName!=""){//用户名存在的话把用户名填充到用户名文本框
+            $("#userName").val(userName);
+        }else{
+            $("#userName").val("");
+        }
+        if(pwd!=""){//密码存在的话把密码填充到密码文本框
+            $("#passWord").val(pwd);
+        }else{
+            $("#passWord").val("");
+        }
+    }
+
+    //登录
+    function tologin(){
+        alert(1);
+        var userName = $('#userName').val();
+        var passWord = $('#passWord').val();
+        var aa = $("input[type='checkbox']").is(":checked");//获取选中状态
+        if(userName == ''){
+            alert("请输入用户名。");
+            return;
+        }
+        if(passWord == ''){
+            alert("请输入密码。");
+            return;
+        }
+        if(aa==true){
+            setCookie();   //调用设置Cookie的方法
+            alert(1);
+            window.location.href= "../user/index";
+            return true;
+        }else if(aa==false){
+            setCookie();  //调用设置Cookie的方法
+            alert(1);
+
+            window.location.href= "../user/index";
+            return true;
+
+        }
+
+    }
+</script>
+</html>

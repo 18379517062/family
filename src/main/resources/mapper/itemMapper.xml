@@ -89,7 +89,7 @@
 
 
     <!--  删除记录-->
-    <delete id="deleteItem" parameterType="java.lang.Integer">
+    <delete id="deleteItem"  parameterType="java.lang.Integer">
           DELETE FROM item WHERE id = #{id}
     </delete>
 </mapper>

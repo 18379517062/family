@@ -41,7 +41,8 @@ public interface itemMapper {
 
 
     //删除类别
-    void deleteItem(item item);
+    int deleteItem(item item);
+
 
 
 }

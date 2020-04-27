@@ -49,8 +49,8 @@ public class itemService {
     }
 
     //删除回路
-    public void deleteItem(item item){
-        itemmapper.deleteItem(item);
+    public int deleteItem(item item){
+        return itemmapper.deleteItem(item);
     }
 
 

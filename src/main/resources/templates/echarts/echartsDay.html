@@ -98,6 +98,16 @@
                                     </select>
                                 </div>
 
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >选择币种作统计：</b>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <select id="currency" name="currency" class="form-control"  onchange="selectStatusAndYear()" >
+                                        <option th:each="currency ,currencyStat:${currencyList}" th:value="${currencyStat.index}" th:text="${currency.currencyName}"
+                                                th:attr ="selected=${currencyStat.index==0?true:false}"></option>
+                                    </select>
+                                </div>
+
                             </div>
 
                         </div>
@@ -112,7 +122,7 @@
                         <div class="ibox-content">
                             <h1 id="monthMoney" class="no-margins" >月总金额</h1>
                             <small>...</small>
-                            <span class="label label-success pull-right">人民币</span>
+                            <span th:name="cname" class="label label-success pull-right">人民币</span>
 
                         </div>
                     </div>
@@ -125,7 +135,7 @@
                         <div class="ibox-content">
                             <h1 id="maxDayName" class="no-margins" >日的名字+金额</h1>
                             <small id="maxDayMoney">人民币</small>
-                            <span class="label label-success pull-right">人民币</span>
+                            <span th:name="cname" class="label label-success pull-right">人民币</span>
                         </div>
                     </div>
                 </div>
@@ -137,7 +147,7 @@
                         <div class="ibox-content">
                             <h1 id="maxCategoryName" class="no-margins" >来源名字+金额</h1>
                             <small id="maxCategoryMoney">人民币</small>
-                            <span class="label label-success pull-right">人民币</span>
+                            <span th:name="cname" class="label label-success pull-right">人民币</span>
                         </div>
                     </div>
                 </div>
@@ -202,6 +212,11 @@
         var arr = new Map(); //先声明一维
         var categoryName = [];
 
+        var currency = document.getElementById("currency").value;
+        var o = document.getElementById("currency");
+        var index = o.selectedIndex;//选中的索引
+        var currencyName = o.options[index].text;//选中的文本
+
         //获取每月天数
         function mGetDate(year, month) {
             var d = new Date(year, month, 0);
@@ -229,12 +244,10 @@
             xMap.set(i, days);     //i表示月份0-11 ，days[]，表示每月的天数。作为x轴坐标
         }
 
-
-
         //AJAX接收数据主体
         $.ajax({
             type: "GET",
-            url: "../echarts/selectStatusAndYear?status="+status+"&year="+years,
+            url: "../echarts/selectStatusAndYear?status="+status+"&year="+years+"&currency="+currency,
             dataType: "json",
             async: false,
             success: function (result) {
@@ -296,18 +309,6 @@
             return obj;
         }
 
-
-        // for (var i = 0; i < categoryName.length; i++) {
-        //     var mon = [];
-        //     for (var j = 0; j < 12; j++) {
-        //         var num = [];   //每月1-31日的所以收入
-        //         for (var k = 1; k <= arr.get(categoryName[i]).get(j).size; k++) {
-        //             num.push(arr.get(categoryName[i]).get(j).get(k));
-        //         }
-        //         mon.push(num);
-        //     }
-
-
         //寻找x年x月内哪个类别的金额占比最大，若金额全为0则显示无
         var monthMoney = 0.0;  //x月内所有类别的总收入或支出
         var maxCategoryName;  //占比最大的类别的名字
@@ -349,12 +350,11 @@
             }
         }
         if(maxDayIndex == -1) {  //若金额全为0则显示无
-            maxDayMoney = "无";
+            maxDayMoney = 0.0;
             maxDayName = '无';
         }
         else
             maxDayName = maxDayIndex+"日";
-
 
         //给4个框赋值
         if(status == "0") { //收入
@@ -367,16 +367,19 @@
             document.getElementById("statusDayName").innerHTML = Number(months)+1 +"月最大支出日";
             document.getElementById("summary").innerHTML = "花花花(＾∀＾)";
         }
-        document.getElementById("monthMoney").innerHTML = monthMoney;
+        document.getElementById("monthMoney").innerHTML = monthMoney.toFixed(2);
 
         document.getElementById("maxDayName").innerHTML = maxDayName;
-        document.getElementById("maxDayMoney").innerHTML = maxDayMoney;
+        document.getElementById("maxDayMoney").innerHTML = maxDayMoney.toFixed(2);
 
         document.getElementById("maxCategoryName").innerHTML = maxCategoryName;
-        document.getElementById("maxCategoryMoney").innerHTML = maxCategoryMoney;
+        document.getElementById("maxCategoryMoney").innerHTML = maxCategoryMoney.toFixed(2); 
 
 
-
+        //右下角小标签的单位
+        $("span[name='cname']").each(function() {
+            $(this).text(currencyName);
+        });
 
 
 
@@ -386,7 +389,7 @@
             for (var j = 0; j < 12; j++) {
                 var num = [];   //每月1-31日的所以收入
                 for (var k = 1; k <= arr.get(categoryName[i]).get(j).size; k++) {
-                    num.push(arr.get(categoryName[i]).get(j).get(k));
+                    num.push(arr.get(categoryName[i]).get(j).get(k).toFixed(2));  //保留2为有效小数
                 }
                 mon.push(num);
             }
@@ -440,7 +443,6 @@
             })
         }
 
-
         option = {
             baseOption: {
                 timeline: {
@@ -457,7 +459,16 @@
                     data: xData
                 },
                 title: {},
-                tooltip: {},
+                tooltip: {
+                    formatter:function(params)
+                    {
+                        var relVal = params[0].name+'日';
+                        for (var i = 0, l = params.length; i < l; i++) {
+                            relVal += '<br/>' +params[i].marker+ params[i].seriesName  +': '+ params[i].value + currencyName ;
+                        }
+                        return relVal;
+                    }
+                },
                 toolbox: {
                     show: true,
                     feature: {
@@ -479,15 +490,16 @@
                     bottom: 100,
                     tooltip: {
                         trigger: 'axis',
-                        axisPointer: {
-                            type: 'shadow',
-                            label: {
-                                show: true,
-                                formatter: function (params) {
-                                    return params.value.replace('\n', '');
-                                }
-                            }
-                        }
+                        // axisPointer: {
+                        //     type: 'shadow',
+                        //     label: {
+                        //         show: true,
+                        //         formatter: function (params) {
+                        //             return params.value.replace('\n', '');
+                        //         }
+                        //     }
+                        // }
+
                     }
                 },
                 xAxis: [
@@ -501,7 +513,7 @@
                 yAxis: [
                     {
                         type: 'value',
-                        name: '收入（元）'
+                        name: currencyName
                     }
                 ],
                 series: series2

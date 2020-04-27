@@ -58,6 +58,11 @@
     where id = #{id,jdbcType=INTEGER}
     </update>
 
-
+<!--    修改密码-->
+    <update id="changePassword" parameterType="com.family.entity.user" >
+      update user set
+          password = #{password}
+    where userName = #{userName}
+    </update>
 
 </mapper>

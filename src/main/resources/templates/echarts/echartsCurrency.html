@@ -79,11 +79,6 @@
                                 </div>
 
 
-
-<!--                                <div class="col-sm-2 m-b-xs">-->
-<!--                                    <a th:href="@{'downloadToExcel'}" onclick="return myclick();" class="btn btn-primary btn-block" ><strong>导出到Excel</strong></a>-->
-<!--                                </div>-->
-
                             </div>
 
                         </div>
@@ -162,10 +157,6 @@
 
         window.location.href="/echarts/downloadToExcel?currencyIndex="+i;
 
-        // if(i==0){
-        //     alert('数据为0条，请查询一些数据把');
-        //     return false;
-        // }
         return true;
     }
 </script>
@@ -205,12 +196,6 @@
                 alert("获取后台数据失败！");
             }
         });
-
-        //给4个框赋值
-        document.getElementById("incomeTh").innerHTML =  incomeTh;
-        document.getElementById("costTh").innerHTML = costTh;
-        document.getElementById("profitTh").innerHTML = profitTh;
-
 
     }
 </script>

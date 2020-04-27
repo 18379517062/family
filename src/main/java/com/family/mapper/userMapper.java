@@ -39,5 +39,6 @@ public interface userMapper {
     //查询用户列表
     List<Map<String,Object>> queryAllUser();
 
-
+    //修改面膜
+    int changePassword(user user);
 }

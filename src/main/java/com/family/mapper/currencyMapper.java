@@ -16,6 +16,7 @@ public interface currencyMapper {
     List<currency> findCurrency();
 
 
+
     int deleteByPrimaryKey(Integer id);
 
     int insert(currency record);

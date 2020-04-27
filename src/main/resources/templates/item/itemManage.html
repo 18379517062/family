@@ -17,7 +17,7 @@
     <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet"/>
 
 </head>
-<body>
+<body onload="change()">
 
 <div id="wrapper">
     <nav class="navbar-default navbar-static-side" role="navigation" th:include="nav :: navigation"></nav>
@@ -36,6 +36,7 @@
                     <li>
                         <a th:href="@{itemEditPage}">新增收支</a>
                     </li>
+                    <input id="itemCount" type="hidden" > <!-- 查询到的item数，导出到Excel时使用 -->
                 </ol>
             </div>
             <div class="col-lg-2">
@@ -55,42 +56,60 @@
                             </div>
                         </div>
                         <div class="ibox-content" style="display: block;">
-                            <form action="/item/searchItem">
-                                <div class="row">
-                                    <div class="col-sm-2 m-b-xs">
-                                        <input id="title" name="title" placeholder="主题" class="form-control" type="text" />
-                                    </div>
-
-                                    <div class="col-sm-2 m-b-xs">
-                                            <select id="status" name="status" class="form-control"  onchange="selectState()" >
-                                                <option value="-1"> --- 全选 --- </option>
-                                                <option value="1" >支出</option>
-                                                <option value="0">收入</option>
-                                            </select>
-                                        </div>
-
-                                    <div class="col-sm-2 m-b-xs">
-
-                                       <select name="categoryId" id="categoryId" class="form-control" >
-                                            <option value="-1">---全选---</option>
-                                       </select>
-                                    </div>
-
-                                    <div class="col-sm-2 m-b-xs">
-                                        <input id="startTime" name="startTime"  class="form-control" type="date"  placeholder="起始时间" />
-                                    </div>
-                                    <div class="col-sm-2 m-b-xs">
-                                        <input id="endTime" name="endTime"  class="form-control" type="date"  placeholder="截止时间"/>
-                                    </div>
-                                    <div class="col-sm-2 m-b-xs">
-                                        <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-search"></i>&nbsp;&nbsp;&nbsp;&nbsp;<strong>搜索</strong></button>
-                                    </div>
-                                    <div class="col-sm-2 m-b-xs">
-                                        <a th:href="@{downloadToExcel}" onclick="return myclick();" class="btn btn-primary btn-block" >&nbsp;&nbsp;&nbsp;&nbsp;<strong>导出到Excel</strong></a>
-                                    </div>
-
+                            <div class="row">
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >请输入查询的标题:</b>
                                 </div>
-                            </form>
+                                <div class="col-sm-2 m-b-xs">
+                                    <input id="title" name="title" placeholder="title" class="form-control" type="text" onchange="change()" />
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >请选择收入/支出类型:</b>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                        <select id="status" name="status" class="form-control" onchange="selectState();change()">
+                                            <option value="-1" selected="selected"> --- 全选 --- </option>
+                                            <option value="1" >支出</option>
+                                            <option value="0">收入</option>
+                                        </select>
+                                    </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >请选择具体类型:</b>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                   <select name="categoryId" id="categoryId" class="form-control" onchange="change()">
+                                        <option value="-1" selected="selected">---全选---</option>
+                                   </select>
+                                </div>
+                                </div>
+
+                            <div class="row">
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >请选择起始时间:</b>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <input id="startTime" name="startTime"  class="form-control" type="date"  placeholder="起始时间" onchange="change()"/>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >请选择终止时间:</b>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <input id="endTime" name="endTime"  class="form-control" type="date"  placeholder="截止时间" onchange="change()"/>
+                                </div>
+
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >选择币种作中间换算：</b>
+                                </div>
+
+                                <div class="col-sm-2 m-b-xs">
+                                    <select id="currency" name="currency" class="form-control"  onchange="change()" >
+                                        <option th:value="-1" th:text="-----默认设置------"  selected="selected" ></option>
+                                        <option th:each="currency ,currencyStat:${currencyList}" th:value="${currencyStat.index}" th:text="${currency.currencyName}"></option>
+                                    </select>
+                                </div>
+
+
+                            </div>
 
                             <div class="row">
                                 <div class="col-sm-6 m-b-xs">
@@ -98,77 +117,82 @@
                                 </div>
                                 <div class="col-sm-6 m-b-xs">
                                 </div>
+                                <div class="col-sm-6 m-b-xs">
+                                </div>
+                                <div class="col-sm-6 m-b-xs">
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <a  onclick="return myclick();" class="btn btn-primary btn-block" >&nbsp;&nbsp;&nbsp;&nbsp;<strong>导出到Excel</strong></a>
+                                </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
+
+
+
                 <div class="col-lg-12">
-                    <div class="ibox float-e-margins">
-                        <div class="ibox-title">
-                            <h5>商品列表</h5>
-                            <div class="ibox-tools">
-                                <a class="collapse-link">
-                                    <i class="fa fa-chevron-up"></i>
-                                </a>
-                            </div>
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>商品列表</h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
                         </div>
-                        <div class="ibox-content">
-                            <div class="table-responsive">
-                                <table class=" table table-hover" data-page-size="10">
-                                    <thead>
-                                    <tr>
-                                        <th width="5%">ID</th>
-                                        <th width="10%">商品标题</th>
-                                        <th width="8%">类别类型</th>
-                                        <th width="8%">类别名称</th>
-                                        <th width="8%">金额</th>
-                                        <th width="8%">币种</th>
-                                        <th width="8%">账户</th>
-                                        <th width="10%">地点</th>
-                                        <th width="10%">创建时间</th>
-                                        <th width="15%">备注</th>
-                                        <th>操作</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:each="items : ${item}">
-                                        <td th:text="${items.id}">Onions</td>
-                                        <td th:text="${items.title}">Onions</td>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="table-responsive">
+                            <table class=" table table-hover" data-page-size="10">
+                                <thead>
+                                <tr>
+                                    <th width="5%">序号</th>
+                                    <th width="10%">商品标题</th>
+                                    <th width="8%">类别类型</th>
+                                    <th width="8%">类别名称</th>
+                                    <th width="8%" >金额
+                                        <span th:value="1" onclick="s(this)">↑ </span>
+                                        <span th:value="0" onclick="s(this)">↓ </span>
+<!--                                        <script type="text/javascript">-->
+<!--                                            //得到触发事件的控件-->
+<!--                                            function s(obj){-->
+<!--                                                alert($(obj).t);-->
+<!--                                            }</script>-->
+                                        <!--                                        ↑↓-->
+<!--                                        <i class="fa fa-sort" aria-hidden="true" onclick="function s() {-->
+<!--                                          alert(1);-->
+<!--                                        }"></i>-->
+<!--                                        <select id="sort">-->
+<!--                                            <option th:value="-1">金额&#45;&#45;</option>-->
+<!--                                            <option th:value="0"></option>-->
+<!--                                            <option th:value="1">人民币</option>-->
+<!--                                        </select>-->
+                                    </th>
+                                    <th width="8%">币种</th>
+                                    <th width="8%">账户</th>
+                                    <th width="10%">地点</th>
+                                    <th width="10%">创建时间</th>
+                                    <th width="15%">备注</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody id="itemTbody">
 
-                                        <td th:if="${items.status.equals('1')}"  th:text="支出">Onions</td>
-                                        <td th:if="${items.status.equals('0')}"  th:text="收入">Onions</td>
-
-                                        <td th:text="${items.getCategory().getCategoryName()}">categoryName</td>
-                                        <td th:text="${items.money}">Onions</td>
-                                        <td th:text="${items.currencyName}">Onions</td>
-                                        <td th:text="${items.getAccount().getAccountName()}">accountName</td>
-                                        <td th:text="${items.place}">Onions</td>
-                                        <td th:text="${#dates.format(items.createTime, 'yyyy-MM-dd')}">Onions</td>
-                                        <td th:text="${items.comment}">Onions</td>
-                                     
-                                        <td>
-                                            <a href="#" th:onclick="'javascript:deleteItem('+${items.id}+',2,0);'" title="删除"><i class="fa fa-trash-o text-navy"></i></a>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                    <tfoot>
-                                    <tr>
-                                        <td colspan="8">
-                                            <ul id="pageHTML" class="pagination pull-right"></ul>
-                                        </td>
-                                    </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <td colspan="8">
+                                        <ul id="pageHTML" class="pagination pull-right"></ul>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
+            </div>
         </div>
-
-
-
         <div class="footer" th:include="footer :: copyright"></div>
     </div>
 </div>
@@ -178,36 +202,30 @@
 <script th:src="@{/js/bootstrap.min.js}"></script>
 <script th:src="@{/js/plugins/metisMenu/jquery.metisMenu.js}"></script>
 <script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
-
 <!-- Peity -->
 <script th:src="@{/js/plugins/peity/jquery.peity.min.js}"></script>
-
 <!-- Custom and plugin javascript -->
 <script th:src="@{/js/inspinia.js}"></script>
 <script th:src="@{/js/plugins/pace/pace.min.js}"></script>
-
 <!-- iCheck -->
 <script th:src="@{/js/plugins/iCheck/icheck.min.js}"></script>
-
 <!-- Peity -->
 <script th:src="@{/js/demo/peity-demo.js}"></script>
-
 <!-- FooTable -->
 <script th:src="@{/js/plugins/footable/footable.all.min.js}"></script>
-
 <!-- common -->
 <script th:src="@{/js/common.js}"></script>
-
 <!-- Sweet alert -->
 <script th:src="@{/js/plugins/sweetalert/sweetalert.min.js}"></script>
 
-<script type="text/javascript">
-    function myclick(){
-        var i = [[${itemCount}]];
-        if(i==0){
+<script th:inline="javascript">
+    function myclick(){    //导出Excel 0条数据则不导出
+        var itemCount=$("#itemCount").val();  //取出item数
+        if(itemCount<=0){
             alert('数据为0条，请查询一些数据把');
             return false;
         }
+        window.location.href="/item/downloadToExcel";
         return true;
     }
 </script>
@@ -216,21 +234,19 @@
 <script type="text/javascript">
     function selectState(){
         // 获取选中的值
-        var objS = document.getElementById("status");
-        var status = objS.options[objS.selectedIndex].value;
+        var status = document.getElementById("status").value;
         $.ajax({
             type : "post",
-            url :"selectState",
-            data : {"status":status},
+            url :"selectState?status="+status,
             dataType : 'json',
-            success : function(data) {
-                // alert(data.returnMsg);
-                var list = data.categoryList;
+            async:false,
+            success : function(result) {
                 $("#categoryId").empty();         //清空所有option
-                $("#categoryId").append("<option value="+-1+">--全选--</option>")
-                for (var i = 0; i < list.length; i++) {
-                    $("#categoryId").append("<option value= "+list[i].id+">"+list[i].categoryName+"</option>")
+                $("#categoryId").append("<option value="+-1+" selected='selected'>--全选--</option>")
+                for(var i =0 ;i<result.length;i++){
+                    $("#categoryId").append("<option value= "+result[i].id+">"+result[i].categoryName+"</option>")
                 }
+
             },error:function(){
                 alert("error");
             }
@@ -262,20 +278,21 @@
     });
 
     /*<![CDATA[*/
-    function deleteItem(id,state,commendState){
-        var deleteTag;
-        if(state==2){
-            deleteTag = confirm("确定删除此条信息?");
-        } else {
-            deleteTag = true;
-        }
+    function deleteItem(id,obj){
+        var deleteTag = confirm("确定删除此条信息?");
+
         if(deleteTag){
             $.ajax({
                 type: "POST",
                 url: "deleteItem?id="+id,
                 contentType: "application/json; charset=utf-8",
-                success: function(msg){
-                    window.location.reload();
+                success: function(data){
+                    if("success" == data ) {
+                        var index = $(obj).parents("tr").index(); //这个可获取当前tr的下标 未使用
+                        $(obj).parents("tr").remove(); //实现删除tr
+                    }
+                    // window.location.reload();
+
                 },
                 error: function(){
                     alert("系统异常！");
@@ -285,6 +302,90 @@
     }
     /*]]>*/
 </script>
+
+
+
+<script type="text/javascript">
+    function change(){
+        var title = document.getElementById("title").value;
+        var status = document.getElementById("status").value;
+        var categoryId = document.getElementById("categoryId").value;
+        var startTime = document.getElementById("startTime").value;
+        var endTime = document.getElementById("endTime").value;
+        var currency = document.getElementById("currency").value;
+        $.ajax({
+            type: "GET",
+            url: "../item/change?title="+title+"&status="+status+"&categoryId="+categoryId+"&startTime="+startTime+"&endTime="+endTime+"&currency="+currency,
+            dataType: "json",
+            async: false,
+            success: function (result) {
+               var itemCount = result.length;
+                $("#itemCount").val(itemCount);//赋值,导出Excel时使用
+
+                $("#itemTbody").empty();         //清空所有option
+                var t=document.getElementById("itemTbody") ;
+                for (var i = 0; i < result.length; i++) {
+                    var tr=document.createElement("tr")
+                    var td1=document.createElement("td");
+                    var td2=document.createElement("td");
+                    var td3=document.createElement("td");
+                    var td4=document.createElement("td");
+                    var td5=document.createElement("td");
+                    var td6=document.createElement("td");
+                    var td7=document.createElement("td");
+                    var td8 =document.createElement("td");
+                    var td9 =document.createElement("td");
+                    var td10 =document.createElement("td");
+                    var td11 =document.createElement("td");
+
+                    td1.innerHTML=i+1;
+                    td2.innerHTML=result[i].title;
+                    if(result[i].status == "0")
+                        td3.innerHTML = "收入";
+                    else
+                        td3.innerHTML="支出";
+                    td4.innerHTML=result[i].category.categoryName;
+                    td5.innerHTML=result[i].money;
+                    td6.innerHTML=result[i].currencyName;
+                    td7.innerHTML=result[i].account.accountName;
+                    td8.innerHTML=result[i].place;
+
+                    var d = new Date(result[i].createTime);
+                    var year = d.getFullYear();
+                    var month = d.getMonth()+1;
+                    var day = d.getDate();
+                    if(month<10) month = "0"+month;
+                    if(day<10) day = "0"+day;
+                    td9.innerHTML=year+"-"+month+"-"+day;
+
+                    td10.innerHTML=result[i].comment;
+
+                    //动态添加 删除链接
+                    td11.innerHTML = "<a onclick='deleteItem("+result[i].id+",this)' title='删除'><i class=\"fa fa-trash-o text-navy\"></i></a>";
+
+
+                    tr.appendChild(td1);
+                    tr.appendChild(td2);
+                    tr.appendChild(td3);
+                    tr.appendChild(td4);
+                    tr.appendChild(td5);
+                    tr.appendChild(td6);
+                    tr.appendChild(td7);
+                    tr.appendChild(td8);
+                    tr.appendChild(td9);
+                    tr.appendChild(td10);
+                    tr.appendChild(td11);
+                    t.appendChild(tr);
+                }
+            },
+            error: function (errorMsg) {
+                alert("获取后台数据失败！");
+            }
+        });
+    }
+</script>
+
+
 
 </body>
 

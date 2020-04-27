@@ -40,6 +40,11 @@ public class userService {
                 birthday,updateTime);
     }
 
+    //修改面膜
+    public int changePassword(user user){
+        return usermapper.changePassword(user);
+    }
+
 
     //查找用户是否存在 by userName
     public String findUserByName(String userName){

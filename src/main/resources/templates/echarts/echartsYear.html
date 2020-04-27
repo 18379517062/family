@@ -77,6 +77,23 @@
                                                     th:attr ="selected=${yearStat.index==0?true:false}"></option>
                                         </select>
                                     </div>
+
+                                    <div class="col-sm-2 m-b-xs">
+                                        <b class="form-control" >选择币种作统计：</b>
+                                    </div>
+                                    <div class="col-sm-2 m-b-xs">
+                                        <select id="currency" name="currency" class="form-control"  onchange="selectYear()" >
+                                            <option th:each="currency ,currencyStat:${currencyList}" th:value="${currencyStat.index}" th:text="${currency.currencyName}"
+                                                    th:attr ="selected=${currencyStat.index==0?true:false}"></option>
+                                        </select>
+                                    </div>
+<!--                                    <div class="col-sm-2 m-b-xs">-->
+<!--                                        <select id="currency" name="currency" class="form-control"  onchange="change()" >-->
+<!--                                            <option th:value="-1" th:text="-&#45;&#45;&#45;&#45;默认设置&#45;&#45;&#45;&#45;&#45;&#45;"  selected="selected" ></option>-->
+<!--                                            <option th:each="currency ,currencyStat:${currencyList}" th:value="${currencyStat.index}" th:text="${currency.currencyName}"></option>-->
+<!--                                        </select>-->
+<!--                                    </div>-->
+
                                 </div>
 
                         </div>
@@ -91,7 +108,7 @@
                         <div class="ibox-content">
                             <h1 id="incomeTh" class="no-margins" >年总收入</h1>
                             <small>...</small>
-                            <span class="label label-success pull-right">人民币</span>
+                            <span th:name="cname" class="label label-success pull-right">人民币</span>
                         </div>
                     </div>
                 </div>
@@ -103,7 +120,7 @@
                         <div class="ibox-content">
                             <h1 id="costTh" class="no-margins" >年总支出</h1>
                             <small>...</small>
-                            <span class="label label-success pull-right">人民币</span>
+                            <span th:name="cname" class="label label-success pull-right">人民币</span>
                         </div>
                     </div>
                 </div>
@@ -115,7 +132,7 @@
                         <div class="ibox-content">
                             <h1 id="profitTh" class="no-margins" >年总收益</h1>
                             <small>...</small>
-                            <span class="label label-success pull-right">人民币</span>
+                            <span th:name="cname" class="label label-success pull-right">人民币</span>
                         </div>
                     </div>
                 </div>
@@ -170,6 +187,15 @@
 <script type="text/javascript">
     function selectYear(){
         var myChart = echarts.init(document.getElementById('main'));
+        var currency = document.getElementById("currency").value;
+
+        var obj = document.getElementById("currency");
+        var index = obj.selectedIndex;//选中的索引
+        var currencyName = obj.options[index].text;//选中的文本        alert(n);
+        // alert(text);
+
+
+
         var xData = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
         var income =  new Map();
         var cost =  new Map();
@@ -189,10 +215,9 @@
 
         // 获取选中的值:年份
         var year = document.getElementById("year").value;
-
         $.ajax({
             type:"GET",
-            url:"../echarts/selectYear?year="+year,
+            url:"../echarts/selectYear?year="+year+"&currency="+currency,
             dataType:"json",
             async:false,
             success:function (result) {
@@ -210,9 +235,10 @@
                     }
                 }
                 for(var i=0;i<12;i++){
-                    inc.push(income.get(i));
-                    cos.push(cost.get(i));
-                    pro.push(income.get(i)+cost.get(i));
+
+                    inc.push(income.get(i).toFixed(2));
+                    cos.push(cost.get(i).toFixed(2));
+                    pro.push((income.get(i)+cost.get(i)).toFixed(2));
                     incomeTh += income.get(i);
                     costTh += cost.get(i);
                     profitTh += (income.get(i)+cost.get(i));
@@ -223,6 +249,10 @@
             }
         });
 
+        //全部保留两位有效小数（四舍五入）
+        incomeTh=incomeTh.toFixed(2);
+        costTh=costTh.toFixed(2);
+        profitTh=profitTh.toFixed(2);
         //给4个框赋值
         document.getElementById("incomeTh").innerHTML =  incomeTh;
         document.getElementById("costTh").innerHTML = costTh;
@@ -233,7 +263,10 @@
         else
             s= "出现了亏损 π__π";
         document.getElementById("summaryTh").innerHTML = s;
-
+        //右下角小标签的单位
+        $("span[name='cname']").each(function() {
+            $(this).text(currencyName);
+        });
 
         option = {
             title : {
@@ -245,6 +278,14 @@
                 trigger: 'axis',
                 axisPointer: {            // 坐标轴指示器，坐标轴触发有效
                     type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                },
+                formatter:function(params)
+                {
+                    var relVal = params[0].name;
+                    for (var i = 0, l = params.length; i < l; i++) {
+                        relVal += '<br/>' +params[i].marker+ params[i].seriesName  +': '+ params[i].value + currencyName ;
+                    }
+                    return relVal;
                 }
             },
             toolbox: {
@@ -270,7 +311,7 @@
             },
             yAxis: [
                 {
-                    name: '钱',
+                    name: currencyName,
                     type: 'value'
                 }
             ],

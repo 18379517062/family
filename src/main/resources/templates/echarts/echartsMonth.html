@@ -85,6 +85,17 @@
                                                 th:attr ="selected=${yearStat.index==0?true:false}"></option>
                                     </select>
                                 </div>
+
+                                <div class="col-sm-2 m-b-xs">
+                                    <b class="form-control" >选择币种作统计：</b>
+                                </div>
+                                <div class="col-sm-2 m-b-xs">
+                                    <select id="currency" name="currency" class="form-control"  onchange="selectStatusAndYear()" >
+                                        <option th:each="currency ,currencyStat:${currencyList}" th:value="${currencyStat.index}" th:text="${currency.currencyName}"
+                                                th:attr ="selected=${currencyStat.index==0?true:false}"></option>
+                                    </select>
+                                </div>
+
                             </div>
 
                         </div>
@@ -100,7 +111,7 @@
                         <div class="ibox-content">
                             <h1 id="yearMoney" class="no-margins" >年总金额</h1>
                             <small>...</small>
-                            <span class="label label-success pull-right">人民币</span>
+                            <span th:name="cname" class="label label-success pull-right">人民币</span>
 
                         </div>
                     </div>
@@ -113,8 +124,8 @@
                         </div>
                         <div class="ibox-content">
                             <h1 id="maxMonthName" class="no-margins" >月的名字+金额</h1>
-                            <small id="maxMonthMoney">人民币</small>
-                            <span class="label label-success pull-right">人民币</span>
+                            <small id="maxMonthMoney"></small>
+                            <span th:name="cname" class="label label-success pull-right">人民币</span>
                         </div>
                     </div>
                 </div>
@@ -125,8 +136,8 @@
                         </div>
                         <div class="ibox-content">
                             <h1 id="maxCategoryName" class="no-margins" >来源名字+金额</h1>
-                            <small id="maxCategoryMoney">人民币</small>
-                            <span class="label label-success pull-right">人民币</span>
+                            <small id="maxCategoryMoney"></small>
+                            <span th:name="cname" class="label label-success pull-right">人民币</span>
                         </div>
                     </div>
                 </div>
@@ -187,6 +198,11 @@
         var arr = new Map(); //先声明一维
         var categoryName = [];
 
+        var currency = document.getElementById("currency").value;
+        var obj = document.getElementById("currency");
+        var index = obj.selectedIndex;//选中的索引
+        var currencyName = obj.options[index].text;//选中的文本
+
         // 获取选中的值:年份
         var year = document.getElementById("year").value;
         var status = document.getElementById("status").value;
@@ -200,7 +216,7 @@
         //AJAX接收数据主体
         $.ajax({
             type: "GET",
-            url: "../echarts/selectStatusAndYear?status="+status+"&year="+year,
+            url: "../echarts/selectStatusAndYear?status="+status+"&year="+year+"&currency="+currency,
             dataType: "json",
             async: false,
             success: function (result) {
@@ -286,21 +302,24 @@
             document.getElementById("statusMonthName").innerHTML = "最大支出月";
             document.getElementById("summary").innerHTML = "花钱快乐(＾∀＾)";
         }
-        document.getElementById("yearMoney").innerHTML = yearMoney;
+        document.getElementById("yearMoney").innerHTML = yearMoney.toFixed(2);
 
         document.getElementById("maxMonthName").innerHTML = maxMonthName;
-        document.getElementById("maxMonthMoney").innerHTML = maxMonthMoney;
+        document.getElementById("maxMonthMoney").innerHTML = maxMonthMoney.toFixed(2);
 
         document.getElementById("maxCategoryName").innerHTML = maxCategoryName;
-        document.getElementById("maxCategoryMoney").innerHTML = maxCategoryMoney;
+        document.getElementById("maxCategoryMoney").innerHTML = maxCategoryMoney.toFixed(2);
 
-
+        //右下角小标签的单位
+        $("span[name='cname']").each(function() {
+            $(this).text(currencyName);
+        });
 
         var series = [];    //定义一个数组变量用于存放配置
         for (var i = 0; i < categoryName.length; i++) {
             var num = [];
             for (var j = 0; j < 12; j++) {
-                num.push(arr.get(categoryName[i]).get(j));
+                num.push(arr.get(categoryName[i]).get(j).toFixed(2)  ); //保留两位小数
             }
             series.push({
                 name: categoryName[i],
@@ -321,6 +340,14 @@
             },
             tooltip: {
                 trigger: 'axis',
+                formatter:function(params)
+                {
+                    var relVal = params[0].name;
+                    for (var i = 0, l = params.length; i < l; i++) {
+                        relVal += '<br/>' +params[i].marker+ params[i].seriesName  +': '+ params[i].value + currencyName ;
+                    }
+                    return relVal;
+                }
             },
             legend: {
                 orient: 'horizontal',
@@ -349,7 +376,7 @@
                 data: xData
             },
             yAxis: {
-                name: '钱',
+                name: currencyName,
                 type: 'value'
             },
 

@@ -30,6 +30,12 @@ public class item {
     private account account;
     private category category;
 
+    public item(){ }
+
+    public item(int id){
+        this.id = id;
+    }
+
     public user getUser() {
         return user;
     }

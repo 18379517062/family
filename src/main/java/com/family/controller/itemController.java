@@ -1,6 +1,5 @@
 package com.family.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.family.entity.*;
 import com.family.service.accountService;
 import com.family.service.categoryService;
@@ -20,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -37,8 +37,7 @@ public class itemController {
     @Autowired
     private categoryService categoryService;
 
-    private List<item> itemList;
-
+    private List<item> itemList;  //用于导出到Excel使用
 
     //进入记录新增页面
     @RequestMapping(value = {"/itemEditPage"})
@@ -48,10 +47,8 @@ public class itemController {
         account.setUserId(userId);
         List<account> allAccount = accountService.findAccountByUserId(account);
         List<currency> allCurrency = currencyService.findCurrency();
-        List<category> allCategory = categoryService.findCategoryByStatus("0");
         model.addAttribute("account", allAccount);
         model.addAttribute("currency", allCurrency);
-        model.addAttribute("category", allCategory);
         return "/item/itemEdit";
     }
 
@@ -96,10 +93,7 @@ public class itemController {
             return "/item/itemEdit";
         } else {
             model.addAttribute("message", "添加成功！");
-            item items = new item();
-            items.setUserId(userId);
-            List<item> list = itemService.findAllItem(items);
-            model.addAttribute("item", list);
+
             return "/item/itemManage";
         }
     }
@@ -107,90 +101,33 @@ public class itemController {
     //进入收支记录管理界面
     @RequestMapping(value = {"/itemManagePage"})
     public String itemManagePage(Model model, HttpServletRequest request) {
-
-        item item = new item();
-        int userId = ((user) request.getSession().getAttribute("session_user")).getId();
-        item.setUserId(userId);
-
-//        item.setUser((user) request.getSession().getAttribute("session_user"));
-
-
-        itemList = itemService.findAllItem(item);
-        model.addAttribute("item", itemList);
-        model.addAttribute("itemCount", itemList.size());   //记录数
-
+        List<currency> currencyList = currencyService.findCurrency();   //获取所有汇率
+        model.addAttribute("currencyList",currencyList);
         return "/item/itemManage";
     }
 
     //下拉框级联，status：categoryId
     @ResponseBody
-    @RequestMapping(value = "/selectState", produces = "application/json;charset=utf-8")
-    public String managerList(String status) {
-
-        //调用查询集团下酒店店长信息及其角色信息集合方法
+    @RequestMapping(value = "/selectState")
+    public List<category> managerList(@RequestParam("status") String status ) {
         List<category> list = categoryService.findCategoryByStatus(status);
-        ;
-//        int lines = hotelChainService.selectManagerCount(map);
-
-        //调用查询集团下酒店店长信息及其角色信息总数方法
-        Map<String, Object> returnMap = new HashMap<String, Object>();
-
-        //根据判断结果返回不同结果集
-        if (list.size() != 0) {
-            returnMap.put("categoryList", list);
-            returnMap.put("returnCode", "000000");
-            returnMap.put("returnMsg", "获取到数据");
-        } else {
-            returnMap.put("returnCode", "111111");
-            returnMap.put("returnMsg", "没有获取到数据");
-        }
-        return JSON.toJSONString(returnMap);
-    }
-    //更加条件查询收支记录
-    @RequestMapping(value = "/searchItem")
-    public String searchItem(Model model, HttpServletRequest request,
-                             @RequestParam("status") String status,
-                             @RequestParam("title") String title,
-                             @RequestParam("categoryId") String categoryId,
-                             @RequestParam(value = "startTime",required = false) String startTime,
-                             @RequestParam(value = "endTime",required = false) String endTime) throws ParseException {
-
-
-        int userId = ((user) request.getSession().getAttribute("session_user")).getId();
-        int cid = Integer.parseInt(categoryId);
-
-
-        //开始时间和结束时间转换Date
-        DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
-        Date sTime = null;
-        Date eTime = null;
-        if(startTime=="") {
-            startTime = "2010-01-01";
-            sTime = format1.parse(startTime);
-        }
-        else
-            sTime = format1.parse(startTime);
-
-        if(endTime=="") {
-            eTime = new Date();
-        }
-        else
-            eTime =  format1.parse(endTime);
-
-        itemList =  itemService.searchItem(title,status,userId,cid,sTime,eTime);
-//        itemList = itemService.searchItem(title,status,userId,cid,sTime,eTime);
-        model.addAttribute("item", itemList);
-        model.addAttribute("itemCount", itemList.size());   //记录数
-        return "/item/itemManage";
-
+        return list;  //返回对应的category
     }
 
-//    @ResponseBody是作用在方法上的，@ResponseBody 表示该方法的返回结果直接写入 HTTP response body 中，一般在异步获取数据时使用【也就是AJAX】。
+
     @ResponseBody
-    @PostMapping("/deleteItem")
-    public void deleteItem(item item){
-        itemService.deleteItem(item);
+    @RequestMapping("/deleteItem")
+    public  String deleteItem(String id,Model model) {
+        item item = new item();
+        item.setId(Integer.parseInt(id));
+        int result = itemService.deleteItem(item);
+        if (result > 0) {
+            itemList.remove(new item(Integer.parseInt(id)));  //移除
+            return "success";
+        }
+        return "error";
     }
+
 
     @RequestMapping("/downloadToExcel")
     public void postItemExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -225,5 +162,72 @@ public class itemController {
 
     }
 
+
+
+    //更加条件查询收支记录 ,也是页面数据的加载
+    @RequestMapping("/change")
+    @ResponseBody
+    public List<item> change(Model model, HttpServletRequest request,
+                            @RequestParam("title") String title,
+                            @RequestParam("status") String status,
+                             @RequestParam("categoryId") String categoryId,
+                             @RequestParam("currency") String currency,
+                             @RequestParam(value = "startTime",required = false) String startTime,
+                             @RequestParam(value = "endTime",required = false) String endTime) throws ParseException {
+
+        int userId = ((user) request.getSession().getAttribute("session_user")).getId();
+        int cid = Integer.parseInt(categoryId);
+
+        //开始时间和结束时间转换Date
+        DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+        Date sTime = null;
+        Date eTime = null;
+        if(startTime=="") {
+            startTime = "2010-01-01";
+            sTime = format1.parse(startTime);
+        }
+        else
+            sTime = format1.parse(startTime);
+
+        if(endTime=="") {
+            eTime = new Date();
+        }
+        else
+            eTime =  format1.parse(endTime);
+
+        itemList =  itemService.searchItem(title,status,userId,cid,sTime,eTime);
+
+        //对获取的数据进行统一币种化
+        int index = Integer.parseInt(currency);
+        if(index == -1)    //默认设置不变化
+            return itemList;
+        else{
+            /**
+             * 转换成美元，而有 100欧元 ，转换如下
+             * 1、获取 美元/人民币的汇率 = 7.01 ，欧元/人民币的汇率 = 7.41
+             * 2、用 7.41去除 7.01 得到 欧元/美元的汇率 = 1.05
+             * 3、使用 100*1.05 = 105 ，就是100欧元转换成美元的钱 =105美元
+             */
+            List<currency> currencyList = currencyService.findCurrency();   //获取所有汇率
+            LinkedHashMap<String,Double> map = new LinkedHashMap<>();   //map(currencyName:id)
+
+            for(int i=0;i<currencyList.size();i++) {
+                map.put(currencyList.get(i).getCurrencyName() , currencyList.get(i).getRate());
+            }
+            String name = currencyList.get(index).getCurrencyName();       //要转换成的比重
+            double rate = currencyList.get(index).getRate();  //获取下拉框选中的货币的 汇率（对人民币）：美/人 = 7.01
+            DecimalFormat df = new DecimalFormat("#.0000"); //保留4位有效数字
+
+            for(int i=0;i<itemList.size();i++){
+                double itemRate = map.get(itemList.get(i).getCurrencyName());  //获取当前
+                double v =itemRate/ rate;
+                double changeMoney =  Double.parseDouble(df.format(itemList.get(i).getMoney() *  v )) ;
+                itemList.get(i).setMoney(changeMoney);
+                itemList.get(i).setCurrencyName(name);
+            }
+
+            return itemList;
+        }
+    }
 
 }
