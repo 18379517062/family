@@ -19,7 +19,7 @@
 
 </head>
 
-<body class="gray-bg">
+<body class="gray-bg" onload="getCookie()">
 <div class="middle-box text-center loginscreen animated fadeInDown">
 	<div>
 		<div>
@@ -34,7 +34,7 @@
 			<div class="form-group">
 				<input type="password" class="form-control" placeholder="输入密码" id="password" name="password" required="" />
 			</div>
-			<button type="submit" class="btn btn-primary block full-width m-b">登  录</button>
+			<button type="submit" class="btn btn-primary block full-width m-b" onclick="tologin()">登  录</button>
 			<a th:href="@{forgetPage}"><small>忘记密码 ?</small></a>
 			<!--<a th:href="@{register}" href="#"><small>没有账号 ?</small></a>-->
 			<p class="text-muted text-center">
@@ -43,6 +43,7 @@
 			<a class="btn btn-sm btn-white btn-block"  th:href="@{registerPage}" >注  册</a>
 			<!--<a href="/user/registerPage" >注册</a>-->
 		</form>
+		<input type="checkbox" name="rememenber" id="rememenber">：记住密码<br/>
 		<!--<p class="m-t">-->
 		<!--<small>Inspinia we app framework base on Bootstrap 3 &copy; 2014</small>-->
 		<!--</p>-->
@@ -54,6 +55,70 @@
 <script th:src="@{/js/bootstrap.min.js}"></script>
 <!-- Sweet alert -->
 <script th:src="@{/js/plugins/sweetalert/sweetalert.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery-2.1.1.min.js}" ></script>
+<script type="text/javascript" th:src="@{/js/jquery.cookie.js}"></script>
+
+
+<script type="text/javascript">
+
+	//把信息设置进去Cookie里面去
+	function setCookie(){
+		var userName = $('#userName').val();
+		var password = $('#password').val();
+		var aa = $("input[type='checkbox']").is(":checked");//获取是否选中
+		if(aa==true){//如果选中-->记住密码登录
+			$.cookie("userName",userName.trim(),{expires: 7});//有效时间7天，也可以设置为永久，把时间去掉就好
+			$.cookie("password",password.trim(),{expires: 7});
+		}else{//如果没选中-->不记住密码登录
+			$.cookie("password", "");
+			$.cookie("userName", "");
+			alert("没有记住密码")
+		}
+	}
+
+
+	function getCookie(){ //获取cookie
+		var userName = $.cookie("userName"); //获取cookie中的用户名
+		var pwd =  $.cookie("password"); //获取cookie中的登陆密码
+		alert(userName+":"+pwd);
+		if(pwd){//密码存在的话把“记住用户名和密码”复选框勾选住
+			$("[name='rememenber']").attr("checked","true");
+		}
+		if(userName!=""){//用户名存在的话把用户名填充到用户名文本框
+			$("#userName").val(userName);
+		}else{
+			$("#userName").val("");
+		}
+		if(pwd!=""){//密码存在的话把密码填充到密码文本框
+			$("#password").val(pwd);
+		}else{
+			$("#password").val("");
+		}
+	}
+
+	//登录
+	function tologin(){
+		var userName = $('#userName').val();
+		var password = $('#password').val();
+		var aa = $("input[type='checkbox']").is(":checked");//获取选中状态
+		if(userName == ''){
+			alert("请输入用户名。");
+			return;
+		}
+		if(password == ''){
+			alert("请输入密码。");
+			return;
+		}
+		if(aa==true){
+			setCookie();   //调用设置Cookie的方法
+			window.location = "<%=request.getContextPath()%>/supplier-list";
+		}else if(aa==false){
+			setCookie();  //调用设置Cookie的方法
+			window.location = "http://www.baidu.com";
+		}
+
+	}
+</script>
 
 
 <script th:inline="javascript">

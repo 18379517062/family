@@ -177,15 +177,22 @@
                                 </tr>
                                 </thead>
                                 <tbody id="itemTbody">
-
+<!--                                    ajax自动添加数据-->
                                 </tbody>
+
                                 <tfoot>
                                 <tr>
                                     <td colspan="8">
-                                        <ul id="pageHTML" class="pagination pull-right"></ul>
+                                        <ul id="ulPage"  class="pagination pull-right">
+
+                                        </ul>
+                                            <input id="oldPage" name="oldPage" th:value="1" type="hidden">
                                     </td>
                                 </tr>
                                 </tfoot>
+                                <tfoot>
+
+
                             </table>
                         </div>
                     </div>
@@ -219,6 +226,11 @@
 <script th:src="@{/js/plugins/sweetalert/sweetalert.min.js}"></script>
 
 <script th:inline="javascript">
+
+    function s(pageCurrency) {
+        change(pageCurrency);
+    }
+
     function myclick(){    //导出Excel 0条数据则不导出
         var itemCount=$("#itemCount").val();  //取出item数
         if(itemCount<=0){
@@ -272,12 +284,7 @@
 </script>
 
 <script th:inline="javascript">
-    var pageHTML = [[${pageHTML}]];
-    $(document).ready(function () {
-        $("#pageHTML").html(pageHTML);
-    });
 
-    /*<![CDATA[*/
     function deleteItem(id,obj){
         var deleteTag = confirm("确定删除此条信息?");
 
@@ -291,8 +298,6 @@
                         var index = $(obj).parents("tr").index(); //这个可获取当前tr的下标 未使用
                         $(obj).parents("tr").remove(); //实现删除tr
                     }
-                    // window.location.reload();
-
                 },
                 error: function(){
                     alert("系统异常！");
@@ -300,19 +305,19 @@
             });
         }
     }
-    /*]]>*/
 </script>
 
 
 
 <script type="text/javascript">
-    function change(){
+    function change(pageCurrent){
         var title = document.getElementById("title").value;
         var status = document.getElementById("status").value;
         var categoryId = document.getElementById("categoryId").value;
         var startTime = document.getElementById("startTime").value;
         var endTime = document.getElementById("endTime").value;
         var currency = document.getElementById("currency").value;
+        var oldPage = document.getElementById("oldPage").value;
         $.ajax({
             type: "GET",
             url: "../item/change?title="+title+"&status="+status+"&categoryId="+categoryId+"&startTime="+startTime+"&endTime="+endTime+"&currency="+currency,
@@ -320,11 +325,109 @@
             async: false,
             success: function (result) {
                var itemCount = result.length;
-                $("#itemCount").val(itemCount);//赋值,导出Excel时使用
-
+                $("#itemCount").val(itemCount);  //赋值,导出Excel时使用
                 $("#itemTbody").empty();         //清空所有option
                 var t=document.getElementById("itemTbody") ;
-                for (var i = 0; i < result.length; i++) {
+
+                //设置分页
+                var pageSize = 5;
+                var pageCount ;//获取总页数
+                if(itemCount % pageSize == 0) pageCount = itemCount / pageSize;
+                else pageCount =parseInt(itemCount / pageSize) +1; //取整加1
+
+                //初始化
+                if(pageCurrent == null)pageCurrent = oldPage;
+
+                var old = Number(oldPage);
+                var startIndex;
+                var endIndex;
+                if(pageCurrent == -4) {//到第一页去
+                    startIndex = 0;
+                    endIndex = pageSize;
+                    pageCurrent = 1;
+                }
+                else if(pageCurrent == -3) {//到上一页去
+                    if(old == 1){  //已经在第一页
+                        startIndex = 0;
+                        endIndex = pageSize;
+                        pageCurrent = 1;
+                    }
+                    else{
+                        startIndex = (old-2)*pageSize;
+                        endIndex = (old-1)*pageSize;
+                        pageCurrent = old-1;
+                    }
+
+                }
+                else if(pageCurrent == -2) {//到下一页去
+                    if(old == pageCount){   //已经在最后一页
+                        startIndex = (pageCount-1)*pageSize;
+                        endIndex = pageCount*pageSize;
+                        pageCurrent = pageCount;
+                    }
+                    else {
+                        startIndex = old*pageSize;
+                        endIndex = (old+1)*pageSize;
+                        pageCurrent = old+1;
+                    }
+                }
+                else if(pageCurrent == -1) {//到最后一页去
+                    startIndex = (pageCount-1)*pageSize;
+                    endIndex = pageCount*pageSize;
+                    pageCurrent = pageCount;
+                }
+                else if(pageCurrent > 0){   //选择页码或进行条件查询
+                    if(pageCurrent > pageCount){ //切换其他查询条件，查询的结果变少，这使需要调整
+                        startIndex = (pageCount-1)*pageSize;
+                        endIndex = pageCount*pageSize;
+                        pageCurrent = pageCount;
+                    }
+                    else{   //正常选择页码
+                        startIndex = (pageCurrent-1)*pageSize;
+                        endIndex = pageCurrent*pageSize;
+                    }
+
+                }
+
+                //保存当前页码
+                $("#oldPage").val(pageCurrent);//赋值,导出Excel时使用
+
+                //清空ul
+                $("#ulPage").empty();         //清空所有option
+                var ulPage=document.getElementById("ulPage") ;
+
+                //设置左边的页码
+                var liFirst = document.createElement("li");
+                var liPrev = document.createElement("li");
+                liFirst.className = "footable-page-arrow";
+                liPrev.className = "footable-page-arrow";
+                liFirst.innerHTML = "<a onclick='s(-4)' >«</a>";
+                liPrev.innerHTML = "<a onclick='s(-3)'  >‹</a>";
+                ulPage.appendChild(liFirst);
+                ulPage.appendChild(liPrev);
+
+                //设置中间的页码
+                for(var i=1; i<=pageCount;i++){
+                    var liCenter = document.createElement("li");
+                    if(i==pageCurrent){  //给当前页面添加active
+                        liCenter.className = "footable-page-arrow active";
+                    }
+                    liCenter.innerHTML = "<a onclick='s("+i+")' >"+i+"</a>";
+                    ulPage.appendChild(liCenter);
+                }
+
+                //设置右边的页码
+                var liLast = document.createElement("li");
+                var liNext = document.createElement("li");
+                liLast.className = "footable-page-arrow";
+                liNext.className = "footable-page-arrow";
+                liNext.innerHTML = "<a onclick='s(-2)' >›</a>";
+                liLast.innerHTML = "<a onclick='s(-1)' >»</a>";
+                ulPage.appendChild(liNext);
+                ulPage.appendChild(liLast);
+
+
+                for (var i = startIndex; i < endIndex && i<result.length; i++) {    //选取该页面的一页显示
                     var tr=document.createElement("tr")
                     var td1=document.createElement("td");
                     var td2=document.createElement("td");

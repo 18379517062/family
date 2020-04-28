@@ -86,10 +86,14 @@
               i.accountId = a.id and i.categoryId = c.id  order by i.createTime DESC ,i.id DESC ;
     </select>
 
-
-
     <!--  删除记录-->
     <delete id="deleteItem"  parameterType="java.lang.Integer">
           DELETE FROM item WHERE id = #{id}
     </delete>
+
+<!--查询记录总数-->
+    <select id="count" resultType="java.lang.Integer" >
+        select count(*) from item
+    </select>
+
 </mapper>

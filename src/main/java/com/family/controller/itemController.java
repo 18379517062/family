@@ -168,12 +168,14 @@ public class itemController {
     @RequestMapping("/change")
     @ResponseBody
     public List<item> change(Model model, HttpServletRequest request,
-                            @RequestParam("title") String title,
-                            @RequestParam("status") String status,
+                             @RequestParam("title") String title,
+                             @RequestParam("status") String status,
                              @RequestParam("categoryId") String categoryId,
                              @RequestParam("currency") String currency,
                              @RequestParam(value = "startTime",required = false) String startTime,
                              @RequestParam(value = "endTime",required = false) String endTime) throws ParseException {
+
+
 
         int userId = ((user) request.getSession().getAttribute("session_user")).getId();
         int cid = Integer.parseInt(categoryId);
@@ -196,6 +198,7 @@ public class itemController {
             eTime =  format1.parse(endTime);
 
         itemList =  itemService.searchItem(title,status,userId,cid,sTime,eTime);
+
 
         //对获取的数据进行统一币种化
         int index = Integer.parseInt(currency);

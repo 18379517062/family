@@ -43,6 +43,7 @@ public interface itemMapper {
     //删除类别
     int deleteItem(item item);
 
-
+    //查询总数
+    int count();
 
 }

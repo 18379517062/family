@@ -53,6 +53,9 @@ public class itemService {
         return itemmapper.deleteItem(item);
     }
 
-
+    //查询总数
+    public int count(){
+        return itemmapper.count();
+    }
 
 }
